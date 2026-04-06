@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ClassItem, Program } from "@/lib/constants";
+import type { ClassItem, Program, Day } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
 import { ProgramTabs } from "./ProgramTabs";
 import { ViewToggle } from "./ViewToggle";
@@ -29,15 +29,26 @@ export function SampaSchedule() {
     await deleteClass(id);
   };
 
-  const handleFormSubmit = async (data: Omit<ClassItem, "id"> & { id?: string }) => {
-    if (data.id) {
-      const { id, ...updates } = data;
-      await updateClass(id, updates);
+  const handleFormSubmit = async (
+    data: Omit<ClassItem, "id" | "day"> & { id?: string; days: Day[] }
+  ) => {
+    const { id, days, ...rest } = data;
+
+    if (id) {
+      // Editing: update the existing class (single day)
+      await updateClass(id, { ...rest, day: days[0] });
     } else {
-      await createClass(data);
+      // Creating: one class per selected day
+      for (const day of days) {
+        await createClass({ ...rest, day });
+      }
     }
     setShowForm(false);
     setEditingClass(null);
+  };
+
+  const handleDrop = async (classId: string, day: Day, time: string) => {
+    await updateClass(classId, { day, time });
   };
 
   const handleReset = async () => {
@@ -101,6 +112,7 @@ export function SampaSchedule() {
           editMode={editMode}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onDrop={handleDrop}
         />
       ) : (
         <ListView

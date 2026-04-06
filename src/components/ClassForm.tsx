@@ -1,29 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { PROGRAMS, DAYS, type ClassItem } from "@/lib/constants";
+import { PROGRAMS, DAYS, type ClassItem, type Day } from "@/lib/constants";
+import { Pill } from "./Pill";
+
+type ClassFormData = Omit<ClassItem, "id" | "day"> & { id?: string; days: Day[] };
 
 type ClassFormProps = {
   initial: ClassItem | null;
-  onSubmit: (data: Omit<ClassItem, "id"> & { id?: string }) => void;
+  onSubmit: (data: ClassFormData) => void;
   onCancel: () => void;
 };
 
 export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
   const [program, setProgram] = useState(initial?.program ?? PROGRAMS[0]);
-  const [day, setDay] = useState(initial?.day ?? DAYS[0]);
+  const [selectedDays, setSelectedDays] = useState<Day[]>(
+    initial ? [initial.day as Day] : []
+  );
   const [time, setTime] = useState(initial?.time ?? "");
   const [name, setName] = useState(initial?.name ?? "");
   const [inviteOnly, setInviteOnly] = useState(initial?.invite_only === 1);
   const [ageGroup, setAgeGroup] = useState(initial?.age_group ?? "");
   const [location, setLocation] = useState(initial?.location ?? "");
 
+  const toggleDay = (day: Day) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectedDays.length === 0) return;
     onSubmit({
       ...(initial ? { id: initial.id } : {}),
       program,
-      day,
+      days: selectedDays,
       time,
       name,
       invite_only: inviteOnly ? 1 : 0,
@@ -46,35 +58,37 @@ export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
           {initial ? "Edit Class" : "Add Class"}
         </h2>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>Program</label>
-            <select
-              className={inputClass}
-              value={program}
-              onChange={(e) => setProgram(e.target.value as ClassItem["program"])}
-            >
-              {PROGRAMS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+        <div>
+          <label className={labelClass}>Program</label>
+          <select
+            className={inputClass}
+            value={program}
+            onChange={(e) => setProgram(e.target.value as ClassItem["program"])}
+          >
+            {PROGRAMS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className={labelClass}>Days</label>
+          <div className="flex flex-wrap gap-1.5">
+            {DAYS.map((d) => (
+              <Pill
+                key={d}
+                label={d}
+                active={selectedDays.includes(d)}
+                onClick={() => toggleDay(d)}
+                size="sm"
+              />
+            ))}
           </div>
-          <div>
-            <label className={labelClass}>Day</label>
-            <select
-              className={inputClass}
-              value={day}
-              onChange={(e) => setDay(e.target.value as ClassItem["day"])}
-            >
-              {DAYS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
+          {selectedDays.length === 0 && (
+            <p className="text-xs text-red-400 mt-1">Select at least one day</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -134,9 +148,10 @@ export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
         <div className="flex gap-2 pt-2">
           <button
             type="submit"
-            className="flex-1 bg-[#C22027] hover:bg-[#a81b22] text-white font-medium py-2 rounded-md text-sm cursor-pointer transition-colors"
+            disabled={selectedDays.length === 0}
+            className="flex-1 bg-[#C22027] hover:bg-[#a81b22] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2 rounded-md text-sm cursor-pointer transition-colors"
           >
-            {initial ? "Save Changes" : "Add Class"}
+            {initial ? "Save Changes" : `Add Class${selectedDays.length > 1 ? ` (${selectedDays.length} days)` : ""}`}
           </button>
           <button
             type="button"

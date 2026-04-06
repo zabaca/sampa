@@ -8,15 +8,19 @@ type ClassCardProps = {
   editMode: boolean;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
 };
 
-export function ClassCard({ item, variant, editMode, onEdit, onDelete }: ClassCardProps) {
+export function ClassCard({ item, variant, editMode, onEdit, onDelete, draggable, onDragStart }: ClassCardProps) {
   const colors = classColor(item.name);
 
   if (variant === "calendar") {
     return (
       <div
-        className={`group relative rounded-md border-l-2 ${colors.border} ${colors.bg} px-2 py-1.5 text-xs`}
+        className={`group relative rounded-md border-l-2 ${colors.border} ${colors.bg} px-2 py-1.5 text-xs ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+        draggable={draggable}
+        onDragStart={onDragStart}
       >
         <div className={`font-semibold ${colors.text} leading-tight`}>{item.name}</div>
         <div className="text-zinc-500 mt-0.5">{item.time}</div>

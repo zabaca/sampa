@@ -1,6 +1,7 @@
+import { useState } from "react";
 import type { ClassItem, Day } from "@/lib/constants";
 import { DAYS, DAY_FULL } from "@/lib/constants";
-import { parseTime, isMorning, sortByTime } from "@/lib/time";
+import { isMorning, sortByTime } from "@/lib/time";
 import { ClassCard } from "./ClassCard";
 
 type CalendarViewProps = {
@@ -8,11 +9,16 @@ type CalendarViewProps = {
   editMode: boolean;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
+  onDrop: (classId: string, day: Day, time: string) => void;
 };
 
-export function CalendarView({ classes, editMode, onEdit, onDelete }: CalendarViewProps) {
-  // Determine which days have classes
-  const activeDays = DAYS.filter((d) => classes.some((c) => c.day === d));
+export function CalendarView({ classes, editMode, onEdit, onDelete, onDrop }: CalendarViewProps) {
+  const [dragOverCell, setDragOverCell] = useState<string | null>(null);
+
+  // In edit mode show all 7 days; otherwise only days with classes
+  const activeDays = editMode
+    ? [...DAYS]
+    : DAYS.filter((d) => classes.some((c) => c.day === d));
 
   // Split into morning/evening
   const morningClasses = classes.filter((c) => isMorning(c.time));
@@ -21,6 +27,30 @@ export function CalendarView({ classes, editMode, onEdit, onDelete }: CalendarVi
   // Get unique sorted times per section
   const morningTimes = [...new Set(morningClasses.map((c) => c.time))].sort(sortByTime);
   const eveningTimes = [...new Set(eveningClasses.map((c) => c.time))].sort(sortByTime);
+
+  const handleDragStart = (e: React.DragEvent, classId: string) => {
+    e.dataTransfer.setData("text/plain", classId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, cellKey: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverCell(cellKey);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverCell(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, day: Day, time: string) => {
+    e.preventDefault();
+    setDragOverCell(null);
+    const classId = e.dataTransfer.getData("text/plain");
+    if (classId) {
+      onDrop(classId, day, time);
+    }
+  };
 
   const renderSection = (label: string, times: string[], sectionClasses: ClassItem[]) => {
     if (times.length === 0) return null;
@@ -51,21 +81,26 @@ export function CalendarView({ classes, editMode, onEdit, onDelete }: CalendarVi
 
             {/* Time rows */}
             {times.map((time) => (
-              <>
-                <div
-                  key={`time-${time}`}
-                  className="p-2 text-xs text-zinc-500 font-medium flex items-start pt-3"
-                >
+              <div key={`row-${time}`} className="contents">
+                <div className="p-2 text-xs text-zinc-500 font-medium flex items-start pt-3">
                   {time}
                 </div>
                 {activeDays.map((day) => {
+                  const cellKey = `${day}-${time}`;
                   const cellClasses = sectionClasses.filter(
                     (c) => c.day === day && c.time === time
                   );
+                  const isDragOver = dragOverCell === cellKey;
+
                   return (
                     <div
-                      key={`${day}-${time}`}
-                      className="p-1 min-h-[60px] space-y-1"
+                      key={cellKey}
+                      className={`p-1 min-h-[60px] space-y-1 transition-colors rounded ${
+                        editMode ? "cursor-default" : ""
+                      } ${isDragOver ? "bg-zinc-700/50 ring-1 ring-zinc-500" : ""}`}
+                      onDragOver={editMode ? (e) => handleDragOver(e, cellKey) : undefined}
+                      onDragLeave={editMode ? handleDragLeave : undefined}
+                      onDrop={editMode ? (e) => handleDrop(e, day, time) : undefined}
                     >
                       {cellClasses.map((cls) => (
                         <ClassCard
@@ -75,12 +110,14 @@ export function CalendarView({ classes, editMode, onEdit, onDelete }: CalendarVi
                           editMode={editMode}
                           onEdit={onEdit}
                           onDelete={onDelete}
+                          draggable={editMode}
+                          onDragStart={(e) => handleDragStart(e, cls.id)}
                         />
                       ))}
                     </div>
                   );
                 })}
-              </>
+              </div>
             ))}
           </div>
         </div>
