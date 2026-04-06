@@ -10,6 +10,10 @@ type NoteItem = {
   sort_order: number;
 };
 
+function tempId() {
+  return "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
 export function useClasses(program: Program) {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [notes, setNotes] = useState<NoteItem[]>([]);
@@ -34,29 +38,61 @@ export function useClasses(program: Program) {
     fetchNotes();
   }, [fetchClasses, fetchNotes]);
 
-  const createClass = async (cls: Omit<ClassItem, "id">) => {
+  const createClass = async (cls: Omit<ClassItem, "id">): Promise<string> => {
+    const optimisticId = tempId();
+    // Optimistic: add immediately
+    setClasses((prev) => [...prev, { ...cls, id: optimisticId } as ClassItem]);
+
     const res = await fetch("/api/classes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(cls),
     });
-    if (res.ok) await fetchClasses();
+
+    if (res.ok) {
+      const created = await res.json();
+      // Replace optimistic entry with real one
+      setClasses((prev) =>
+        prev.map((c) => (c.id === optimisticId ? created : c))
+      );
+      return created.id;
+    }
+    // Rollback on failure
+    setClasses((prev) => prev.filter((c) => c.id !== optimisticId));
+    return optimisticId;
   };
 
   const updateClass = async (id: string, updates: Partial<ClassItem>) => {
+    // Optimistic: apply update immediately
+    setClasses((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
+    );
+
     const res = await fetch(`/api/classes/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
-    if (res.ok) await fetchClasses();
+
+    if (!res.ok) {
+      // Rollback: re-fetch on failure
+      await fetchClasses();
+    }
   };
 
   const deleteClass = async (id: string) => {
+    // Optimistic: remove immediately
+    const prev = classes;
+    setClasses((curr) => curr.filter((c) => c.id !== id));
+
     const res = await fetch(`/api/classes/${id}`, {
       method: "DELETE",
     });
-    if (res.ok) await fetchClasses();
+
+    if (!res.ok) {
+      // Rollback
+      setClasses(prev);
+    }
   };
 
   const resetClasses = async () => {
