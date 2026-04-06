@@ -8,14 +8,15 @@ type ClassFormData = Omit<ClassItem, "id" | "day"> & { id?: string; days: Day[] 
 
 type ClassFormProps = {
   initial: ClassItem | null;
+  siblingDays?: Day[];
   onSubmit: (data: ClassFormData) => void | Promise<void>;
   onCancel: () => void;
 };
 
-export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
+export function ClassForm({ initial, siblingDays, onSubmit, onCancel }: ClassFormProps) {
   const [program, setProgram] = useState(initial?.program ?? PROGRAMS[0]);
   const [selectedDays, setSelectedDays] = useState<Day[]>(
-    initial ? [initial.day as Day] : []
+    siblingDays && siblingDays.length > 0 ? siblingDays : initial ? [initial.day as Day] : []
   );
   const [time, setTime] = useState(initial?.time ?? "");
   const [name, setName] = useState(initial?.name ?? "");

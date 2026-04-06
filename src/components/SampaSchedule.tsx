@@ -16,12 +16,27 @@ export function SampaSchedule() {
   const [editMode, setEditMode] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
+  const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
 
   const { classes, notes, loading, createClass, updateClass, deleteClass, resetClasses } =
     useClasses(activeProgram);
 
+  const findSiblings = (item: ClassItem): ClassItem[] => {
+    return classes.filter(
+      (c) =>
+        c.program === item.program &&
+        c.name === item.name &&
+        c.time === item.time &&
+        c.invite_only === item.invite_only &&
+        c.age_group === item.age_group &&
+        c.location === item.location
+    );
+  };
+
   const handleEdit = (item: ClassItem) => {
+    const siblings = findSiblings(item);
     setEditingClass(item);
+    setEditingSiblings(siblings);
     setShowForm(true);
   };
 
@@ -34,22 +49,40 @@ export function SampaSchedule() {
   ) => {
     const { id, days, ...rest } = data;
 
-    if (id && editingClass) {
-      // Update the original class with the first selected day + any field changes
-      await updateClass(id, { ...rest, day: days[0] });
-      // Create new classes for any additional days beyond the original
-      const extraDays = days.slice(1);
-      for (const day of extraDays) {
-        await createClass({ ...rest, day });
+    if (id && editingSiblings.length > 0) {
+      // Editing a group of siblings
+      const existingDays = new Map(editingSiblings.map((s) => [s.day, s.id]));
+      const selectedDays = new Set(days);
+
+      // Update siblings that are still selected (apply field changes)
+      for (const sibling of editingSiblings) {
+        if (selectedDays.has(sibling.day as Day)) {
+          await updateClass(sibling.id, { ...rest, day: sibling.day });
+        }
+      }
+
+      // Create classes for newly added days
+      for (const day of days) {
+        if (!existingDays.has(day)) {
+          await createClass({ ...rest, day });
+        }
+      }
+
+      // Delete classes for removed days
+      for (const sibling of editingSiblings) {
+        if (!selectedDays.has(sibling.day as Day)) {
+          await deleteClass(sibling.id);
+        }
       }
     } else {
-      // Creating: one class per selected day
+      // Creating new: one class per selected day
       for (const day of days) {
         await createClass({ ...rest, day });
       }
     }
     setShowForm(false);
     setEditingClass(null);
+    setEditingSiblings([]);
   };
 
   const handleDrop = async (classId: string, day: Day, time: string) => {
@@ -93,6 +126,7 @@ export function SampaSchedule() {
           <button
             onClick={() => {
               setEditingClass(null);
+              setEditingSiblings([]);
               setShowForm(true);
             }}
             className="px-3 py-1.5 text-sm rounded-md bg-[#C22027] hover:bg-[#a81b22] text-white font-medium cursor-pointer transition-colors"
@@ -135,10 +169,12 @@ export function SampaSchedule() {
       {showForm && (
         <ClassForm
           initial={editingClass}
+          siblingDays={editingSiblings.map((s) => s.day as Day)}
           onSubmit={handleFormSubmit}
           onCancel={() => {
             setShowForm(false);
             setEditingClass(null);
+            setEditingSiblings([]);
           }}
         />
       )}
