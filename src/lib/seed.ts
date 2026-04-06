@@ -1,17 +1,8 @@
 import { db } from "./db";
+import { classes, programNotes } from "./schema";
+import type { InferInsertModel } from "drizzle-orm";
 
-type SeedClass = {
-  id: string;
-  program: string;
-  day: string;
-  time: string;
-  name: string;
-  invite_only: number;
-  age_group: string | null;
-  location: string | null;
-};
-
-export const seedClasses: SeedClass[] = [
+export const seedClasses: InferInsertModel<typeof classes>[] = [
   // ── Adult BJJ (a1–a34) ───────────────────────────────────────
   // Monday
   { id: "a1", program: "Adult BJJ", day: "Mon", time: "5:15 AM", name: "No-Gi", invite_only: 0, age_group: null, location: null },
@@ -162,20 +153,8 @@ export const seedProgramNotes: { program: string; note: string; sort_order: numb
 ];
 
 export async function seed() {
-  await db.execute("DELETE FROM program_notes");
-  await db.execute("DELETE FROM classes");
-
-  for (const c of seedClasses) {
-    await db.execute({
-      sql: "INSERT INTO classes (id, program, day, time, name, invite_only, age_group, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      args: [c.id, c.program, c.day, c.time, c.name, c.invite_only, c.age_group, c.location],
-    });
-  }
-
-  for (const n of seedProgramNotes) {
-    await db.execute({
-      sql: "INSERT INTO program_notes (program, note, sort_order) VALUES (?, ?, ?)",
-      args: [n.program, n.note, n.sort_order],
-    });
-  }
+  await db.delete(programNotes);
+  await db.delete(classes);
+  await db.insert(classes).values(seedClasses);
+  await db.insert(programNotes).values(seedProgramNotes);
 }

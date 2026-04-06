@@ -24,13 +24,8 @@ export const DAY_SHORT: Record<string, Day> = {
   Sunday: "Sun",
 };
 
-export type ClassItem = {
-  id: string;
-  program: Program;
-  day: Day;
-  time: string;
-  name: string;
-  invite_only: number;
-  age_group: string | null;
-  location: string | null;
-};
+// Derived from Drizzle schema — single source of truth
+import type { InferSelectModel } from "drizzle-orm";
+import type { classes } from "./schema";
+
+export type ClassItem = InferSelectModel<typeof classes>;

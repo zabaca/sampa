@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { classes } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 export async function PATCH(
   req: NextRequest,
@@ -8,35 +10,23 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
-  const fields: string[] = [];
-  const args: unknown[] = [];
-
+  const updates: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(body)) {
-    if (key === "id") continue;
-    fields.push(`${key} = ?`);
-    args.push(value);
+    if (key !== "id") updates[key] = value;
   }
 
-  if (fields.length === 0) {
+  if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
-  args.push(id);
-  await db.execute({
-    sql: `UPDATE classes SET ${fields.join(", ")} WHERE id = ?`,
-    args: args as (string | number | null)[],
-  });
+  await db.update(classes).set(updates).where(eq(classes.id, id));
 
-  const result = await db.execute({
-    sql: "SELECT * FROM classes WHERE id = ?",
-    args: [id],
-  });
-
-  if (result.rows.length === 0) {
+  const [updated] = await db.select().from(classes).where(eq(classes.id, id));
+  if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json(result.rows[0]);
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(
@@ -44,11 +34,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-
-  await db.execute({
-    sql: "DELETE FROM classes WHERE id = ?",
-    args: [id],
-  });
-
+  await db.delete(classes).where(eq(classes.id, id));
   return NextResponse.json({ success: true });
 }
