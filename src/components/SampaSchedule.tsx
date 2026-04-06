@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { ClassItem, Program, Day } from "@/lib/constants";
+import { PROGRAMS } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
 import { useLocations } from "@/hooks/useLocations";
 import { ProgramTabs } from "./ProgramTabs";
@@ -29,10 +30,10 @@ export function SampaSchedule() {
   const [locationInitialized, setLocationInitialized] = useState(false);
 
   const {
-    classes, notes, loading,
+    allClasses, allNotes, loading,
     createClass, updateClass, deleteClass, resetClasses,
     createNote, updateNote, deleteNote,
-  } = useClasses(activeProgram);
+  } = useClasses();
 
   const {
     locations, defaultLocation,
@@ -52,38 +53,63 @@ export function SampaSchedule() {
     setLocationInitialized(true);
   }, [locations, defaultLocation, searchParams, locationInitialized]);
 
-  // Sync location filter to URL
-  const setLocationAndParam = (loc: string | null) => {
-    setLocationFilter(loc);
-    const params = new URLSearchParams(searchParams.toString());
-    if (loc) {
-      params.set("location", loc);
-    } else {
-      params.delete("location");
+  // Classes at the selected location
+  const locationClasses = useMemo(() => {
+    if (!locationFilter) return allClasses;
+    return allClasses.filter((c) =>
+      c.location === locationFilter || (c.location === null && defaultLocation?.name === locationFilter)
+    );
+  }, [allClasses, locationFilter, defaultLocation]);
+
+  // Programs available at the selected location (preserve PROGRAMS order)
+  const availablePrograms = useMemo(() => {
+    const programsAtLocation = new Set(locationClasses.map((c) => c.program));
+    return PROGRAMS.filter((p) => programsAtLocation.has(p));
+  }, [locationClasses]);
+
+  // Auto-select first available program when location changes
+  useEffect(() => {
+    if (availablePrograms.length > 0 && !availablePrograms.includes(activeProgram)) {
+      setActiveProgram(availablePrograms[0]);
+      setClassFilter(null);
     }
-    router.replace(`?${params.toString()}`, { scroll: false });
-  };
+  }, [availablePrograms, activeProgram]);
+
+  // Classes filtered by program
+  const programClasses = useMemo(
+    () => locationClasses.filter((c) => c.program === activeProgram),
+    [locationClasses, activeProgram]
+  );
+
+  // Notes for active program
+  const notes = useMemo(
+    () => allNotes.filter((n) => n.program === activeProgram),
+    [allNotes, activeProgram]
+  );
 
   // Unique class names for filter pills
   const classNames = useMemo(
-    () => [...new Set(classes.map((c) => c.name))].sort(),
-    [classes]
+    () => [...new Set(programClasses.map((c) => c.name))].sort(),
+    [programClasses]
   );
 
-  // Filtered classes
+  // Final filtered classes
   const filteredClasses = useMemo(() => {
-    let result = classes;
-    if (classFilter) result = result.filter((c) => c.name === classFilter);
-    if (locationFilter) {
-      result = result.filter((c) =>
-        c.location === locationFilter || (c.location === null && defaultLocation?.name === locationFilter)
-      );
-    }
-    return result;
-  }, [classes, classFilter, locationFilter, defaultLocation]);
+    if (classFilter) return programClasses.filter((c) => c.name === classFilter);
+    return programClasses;
+  }, [programClasses, classFilter]);
+
+  // Sync location filter to URL
+  const setLocationAndParam = (loc: string) => {
+    setLocationFilter(loc);
+    setClassFilter(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("location", loc);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   const findSiblings = (item: ClassItem): ClassItem[] => {
-    return classes.filter(
+    return programClasses.filter(
       (c) =>
         c.program === item.program &&
         c.name === item.name &&
@@ -174,7 +200,11 @@ export function SampaSchedule() {
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <ProgramTabs active={activeProgram} onSelect={(p) => { setActiveProgram(p); setClassFilter(null); }} />
+        <ProgramTabs
+          programs={availablePrograms}
+          active={activeProgram}
+          onSelect={(p) => { setActiveProgram(p); setClassFilter(null); }}
+        />
         <div className="flex-1" />
         <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
         <button
@@ -212,27 +242,23 @@ export function SampaSchedule() {
       )}
 
       {/* Class name filter */}
-      {!loading && (
-        <div className="space-y-2 mb-4">
-          {classNames.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              <Pill
-                label="All Classes"
-                active={classFilter === null}
-                onClick={() => setClassFilter(null)}
-                size="sm"
-              />
-              {classNames.map((name) => (
-                <Pill
-                  key={name}
-                  label={name}
-                  active={classFilter === name}
-                  onClick={() => setClassFilter(classFilter === name ? null : name)}
-                  size="sm"
-                />
-              ))}
-            </div>
-          )}
+      {!loading && classNames.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <Pill
+            label="All Classes"
+            active={classFilter === null}
+            onClick={() => setClassFilter(null)}
+            size="sm"
+          />
+          {classNames.map((name) => (
+            <Pill
+              key={name}
+              label={name}
+              active={classFilter === name}
+              onClick={() => setClassFilter(classFilter === name ? null : name)}
+              size="sm"
+            />
+          ))}
         </div>
       )}
 
@@ -272,7 +298,7 @@ export function SampaSchedule() {
       <ProgramNotes
         notes={notes}
         editMode={editMode}
-        onAdd={createNote}
+        onAdd={(note) => createNote(activeProgram, note)}
         onUpdate={updateNote}
         onDelete={deleteNote}
       />
