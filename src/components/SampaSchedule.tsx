@@ -3,12 +3,14 @@
 import { useState, useMemo } from "react";
 import type { ClassItem, Program, Day } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
+import { useLocations } from "@/hooks/useLocations";
 import { ProgramTabs } from "./ProgramTabs";
 import { ViewToggle } from "./ViewToggle";
 import { CalendarView } from "./CalendarView";
 import { ListView } from "./ListView";
 import { ClassForm } from "./ClassForm";
 import { ProgramNotes } from "./ProgramNotes";
+import { LocationManager } from "./LocationManager";
 import { Pill } from "./Pill";
 
 export function SampaSchedule() {
@@ -19,6 +21,7 @@ export function SampaSchedule() {
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
   const [classFilter, setClassFilter] = useState<string | null>(null);
+  const [locationFilter, setLocationFilter] = useState<string | null>(null);
 
   const {
     classes, notes, loading,
@@ -26,17 +29,30 @@ export function SampaSchedule() {
     createNote, updateNote, deleteNote,
   } = useClasses(activeProgram);
 
+  const {
+    locations, defaultLocation,
+    createLocation, updateLocation, deleteLocation,
+  } = useLocations();
+
   // Unique class names for filter pills
   const classNames = useMemo(
     () => [...new Set(classes.map((c) => c.name))].sort(),
     [classes]
   );
 
-  // Filtered classes
-  const filteredClasses = useMemo(
-    () => (classFilter ? classes.filter((c) => c.name === classFilter) : classes),
-    [classes, classFilter]
+  // Unique location names used by current classes
+  const usedLocations = useMemo(
+    () => [...new Set(classes.map((c) => c.location).filter(Boolean))] as string[],
+    [classes]
   );
+
+  // Filtered classes
+  const filteredClasses = useMemo(() => {
+    let result = classes;
+    if (classFilter) result = result.filter((c) => c.name === classFilter);
+    if (locationFilter) result = result.filter((c) => c.location === locationFilter);
+    return result;
+  }, [classes, classFilter, locationFilter]);
 
   const findSiblings = (item: ClassItem): ClassItem[] => {
     return classes.filter(
@@ -67,32 +83,27 @@ export function SampaSchedule() {
     const { id, days, ...rest } = data;
 
     if (id && editingSiblings.length > 0) {
-      // Editing a group of siblings
       const existingDays = new Map(editingSiblings.map((s) => [s.day, s.id]));
       const selectedDays = new Set(days);
 
-      // Update siblings that are still selected (apply field changes)
       for (const sibling of editingSiblings) {
         if (selectedDays.has(sibling.day as Day)) {
           await updateClass(sibling.id, { ...rest, day: sibling.day });
         }
       }
 
-      // Create classes for newly added days
       for (const day of days) {
         if (!existingDays.has(day)) {
           await createClass({ ...rest, day });
         }
       }
 
-      // Delete classes for removed days
       for (const sibling of editingSiblings) {
         if (!selectedDays.has(sibling.day as Day)) {
           await deleteClass(sibling.id);
         }
       }
     } else {
-      // Creating new: one class per selected day
       for (const day of days) {
         await createClass({ ...rest, day });
       }
@@ -122,7 +133,7 @@ export function SampaSchedule() {
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <ProgramTabs active={activeProgram} onSelect={(p) => { setActiveProgram(p); setClassFilter(null); }} />
+        <ProgramTabs active={activeProgram} onSelect={(p) => { setActiveProgram(p); setClassFilter(null); setLocationFilter(null); }} />
         <div className="flex-1" />
         <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
         <button
@@ -139,7 +150,7 @@ export function SampaSchedule() {
 
       {/* Edit controls */}
       {editMode && (
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={() => {
               setEditingClass(null);
@@ -159,24 +170,52 @@ export function SampaSchedule() {
         </div>
       )}
 
-      {/* Class name filter */}
-      {!loading && classNames.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          <Pill
-            label="All Classes"
-            active={classFilter === null}
-            onClick={() => setClassFilter(null)}
-            size="sm"
-          />
-          {classNames.map((name) => (
-            <Pill
-              key={name}
-              label={name}
-              active={classFilter === name}
-              onClick={() => setClassFilter(classFilter === name ? null : name)}
-              size="sm"
-            />
-          ))}
+      {/* Filters */}
+      {!loading && (
+        <div className="space-y-2 mb-4">
+          {/* Location filter */}
+          {usedLocations.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              <span className="text-xs text-zinc-500 self-center mr-1">Location:</span>
+              <Pill
+                label="All"
+                active={locationFilter === null}
+                onClick={() => setLocationFilter(null)}
+                size="sm"
+              />
+              {locations.map((loc) => (
+                <Pill
+                  key={loc.id}
+                  label={loc.name}
+                  active={locationFilter === loc.name}
+                  onClick={() => setLocationFilter(locationFilter === loc.name ? null : loc.name)}
+                  size="sm"
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Class name filter */}
+          {classNames.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              <span className="text-xs text-zinc-500 self-center mr-1">Class:</span>
+              <Pill
+                label="All"
+                active={classFilter === null}
+                onClick={() => setClassFilter(null)}
+                size="sm"
+              />
+              {classNames.map((name) => (
+                <Pill
+                  key={name}
+                  label={name}
+                  active={classFilter === name}
+                  onClick={() => setClassFilter(classFilter === name ? null : name)}
+                  size="sm"
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -200,6 +239,18 @@ export function SampaSchedule() {
         />
       )}
 
+      {/* Location Manager (edit mode) */}
+      {editMode && (
+        <div className="mt-6">
+          <LocationManager
+            locations={locations}
+            onAdd={createLocation}
+            onUpdate={updateLocation}
+            onDelete={deleteLocation}
+          />
+        </div>
+      )}
+
       {/* Program Notes */}
       <ProgramNotes
         notes={notes}
@@ -214,6 +265,8 @@ export function SampaSchedule() {
         <ClassForm
           initial={editingClass}
           siblingDays={editingSiblings.map((s) => s.day as Day)}
+          locations={locations}
+          defaultLocation={defaultLocation?.name}
           onSubmit={handleFormSubmit}
           onCancel={() => {
             setShowForm(false);

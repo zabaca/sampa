@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { classes, programNotes } from "./schema";
+import { classes, programNotes, locations } from "./schema";
 import type { InferInsertModel } from "drizzle-orm";
 
 export const seedClasses: InferInsertModel<typeof classes>[] = [
@@ -152,9 +152,16 @@ export const seedProgramNotes: { program: string; note: string; sort_order: numb
   { program: "Striking", note: "Advanced Muay Thai is invite-only.", sort_order: 3 },
 ];
 
+export const seedLocations: InferInsertModel<typeof locations>[] = [
+  { name: "Main Mat", is_default: 1 },
+  { name: "Room B", is_default: 0 },
+];
+
 export async function seed() {
   await db.delete(programNotes);
   await db.delete(classes);
+  await db.delete(locations);
+  await db.insert(locations).values(seedLocations);
   await db.insert(classes).values(seedClasses);
   await db.insert(programNotes).values(seedProgramNotes);
 }

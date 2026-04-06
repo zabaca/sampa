@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { PROGRAMS, DAYS, type ClassItem, type Day } from "@/lib/constants";
 import { Pill } from "./Pill";
+import type { LocationItem } from "@/hooks/useLocations";
 
 type ClassFormData = Omit<ClassItem, "id" | "day"> & { id?: string; days: Day[] };
 
 type ClassFormProps = {
   initial: ClassItem | null;
   siblingDays?: Day[];
+  locations: LocationItem[];
+  defaultLocation?: string;
   onSubmit: (data: ClassFormData) => void | Promise<void>;
   onCancel: () => void;
 };
 
-export function ClassForm({ initial, siblingDays, onSubmit, onCancel }: ClassFormProps) {
+export function ClassForm({ initial, siblingDays, locations, defaultLocation, onSubmit, onCancel }: ClassFormProps) {
   const [program, setProgram] = useState(initial?.program ?? PROGRAMS[0]);
   const [selectedDays, setSelectedDays] = useState<Day[]>(
     siblingDays && siblingDays.length > 0 ? siblingDays : initial ? [initial.day as Day] : []
@@ -22,7 +25,7 @@ export function ClassForm({ initial, siblingDays, onSubmit, onCancel }: ClassFor
   const [name, setName] = useState(initial?.name ?? "");
   const [inviteOnly, setInviteOnly] = useState(initial?.invite_only === 1);
   const [ageGroup, setAgeGroup] = useState(initial?.age_group ?? "");
-  const [location, setLocation] = useState(initial?.location ?? "");
+  const [location, setLocation] = useState(initial?.location ?? defaultLocation ?? "");
 
   const toggleDay = (day: Day) => {
     setSelectedDays((prev) =>
@@ -131,12 +134,18 @@ export function ClassForm({ initial, siblingDays, onSubmit, onCancel }: ClassFor
           </div>
           <div>
             <label className={labelClass}>Location</label>
-            <input
+            <select
               className={inputClass}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Room B"
-            />
+            >
+              <option value="">None</option>
+              {locations.map((l) => (
+                <option key={l.id} value={l.name}>
+                  {l.name}{l.is_default === 1 ? " (Default)" : ""}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

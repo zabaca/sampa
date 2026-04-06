@@ -8,6 +8,13 @@
       "when": 1775504913353,
       "tag": "0000_sudden_wolverine",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1775513054328,
+      "tag": "0001_marvelous_firelord",
+      "breakpoints": true
     }
   ]
 }
