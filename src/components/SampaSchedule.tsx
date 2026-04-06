@@ -34,9 +34,14 @@ export function SampaSchedule() {
   ) => {
     const { id, days, ...rest } = data;
 
-    if (id) {
-      // Editing: update the existing class (single day)
+    if (id && editingClass) {
+      // Update the original class with the first selected day + any field changes
       await updateClass(id, { ...rest, day: days[0] });
+      // Create new classes for any additional days beyond the original
+      const extraDays = days.slice(1);
+      for (const day of extraDays) {
+        await createClass({ ...rest, day });
+      }
     } else {
       // Creating: one class per selected day
       for (const day of days) {

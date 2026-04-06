@@ -8,7 +8,7 @@ type ClassFormData = Omit<ClassItem, "id" | "day"> & { id?: string; days: Day[] 
 
 type ClassFormProps = {
   initial: ClassItem | null;
-  onSubmit: (data: ClassFormData) => void;
+  onSubmit: (data: ClassFormData) => void | Promise<void>;
   onCancel: () => void;
 };
 
@@ -29,10 +29,13 @@ export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedDays.length === 0) return;
-    onSubmit({
+    if (selectedDays.length === 0 || saving) return;
+    setSaving(true);
+    await onSubmit({
       ...(initial ? { id: initial.id } : {}),
       program,
       days: selectedDays,
@@ -42,6 +45,7 @@ export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
       age_group: ageGroup || null,
       location: location || null,
     });
+    setSaving(false);
   };
 
   const inputClass =
@@ -148,10 +152,10 @@ export function ClassForm({ initial, onSubmit, onCancel }: ClassFormProps) {
         <div className="flex gap-2 pt-2">
           <button
             type="submit"
-            disabled={selectedDays.length === 0}
+            disabled={selectedDays.length === 0 || saving}
             className="flex-1 bg-[#C22027] hover:bg-[#a81b22] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2 rounded-md text-sm cursor-pointer transition-colors"
           >
-            {initial ? "Save Changes" : `Add Class${selectedDays.length > 1 ? ` (${selectedDays.length} days)` : ""}`}
+            {saving ? "Saving..." : initial ? "Save Changes" : `Add Class${selectedDays.length > 1 ? ` (${selectedDays.length} days)` : ""}`}
           </button>
           <button
             type="button"
