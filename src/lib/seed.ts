@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { classes, programNotes, locations } from "./schema";
+import { isNull } from "drizzle-orm";
 import type { InferInsertModel } from "drizzle-orm";
 
 export const seedClasses: InferInsertModel<typeof classes>[] = [
@@ -163,5 +164,10 @@ export async function seed() {
   await db.delete(locations);
   await db.insert(locations).values(seedLocations);
   await db.insert(classes).values(seedClasses);
+  // Set null locations to the default
+  const defaultLoc = seedLocations.find((l) => l.is_default === 1);
+  if (defaultLoc) {
+    await db.update(classes).set({ location: defaultLoc.name }).where(isNull(classes.location));
+  }
   await db.insert(programNotes).values(seedProgramNotes);
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import type { ClassItem, Program, Day } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
 import { useLocations } from "@/hooks/useLocations";
@@ -14,6 +15,9 @@ import { LocationManager } from "./LocationManager";
 import { Pill } from "./Pill";
 
 export function SampaSchedule() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [activeProgram, setActiveProgram] = useState<Program>("Adult BJJ");
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [editMode, setEditMode] = useState(false);
@@ -22,6 +26,7 @@ export function SampaSchedule() {
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
   const [classFilter, setClassFilter] = useState<string | null>(null);
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
+  const [locationInitialized, setLocationInitialized] = useState(false);
 
   const {
     classes, notes, loading,
@@ -34,6 +39,31 @@ export function SampaSchedule() {
     createLocation, updateLocation, deleteLocation,
   } = useLocations();
 
+  // Initialize location filter from URL param or default location
+  useEffect(() => {
+    if (locationInitialized || locations.length === 0) return;
+
+    const paramLoc = searchParams.get("location");
+    if (paramLoc && locations.some((l) => l.name === paramLoc)) {
+      setLocationFilter(paramLoc);
+    } else if (defaultLocation) {
+      setLocationFilter(defaultLocation.name);
+    }
+    setLocationInitialized(true);
+  }, [locations, defaultLocation, searchParams, locationInitialized]);
+
+  // Sync location filter to URL
+  const setLocationAndParam = (loc: string | null) => {
+    setLocationFilter(loc);
+    const params = new URLSearchParams(searchParams.toString());
+    if (loc) {
+      params.set("location", loc);
+    } else {
+      params.delete("location");
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
   // Unique class names for filter pills
   const classNames = useMemo(
     () => [...new Set(classes.map((c) => c.name))].sort(),
@@ -44,9 +74,13 @@ export function SampaSchedule() {
   const filteredClasses = useMemo(() => {
     let result = classes;
     if (classFilter) result = result.filter((c) => c.name === classFilter);
-    if (locationFilter) result = result.filter((c) => c.location === locationFilter);
+    if (locationFilter) {
+      result = result.filter((c) =>
+        c.location === locationFilter || (c.location === null && defaultLocation?.name === locationFilter)
+      );
+    }
     return result;
-  }, [classes, classFilter, locationFilter]);
+  }, [classes, classFilter, locationFilter, defaultLocation]);
 
   const findSiblings = (item: ClassItem): ClassItem[] => {
     return classes.filter(
@@ -119,29 +153,28 @@ export function SampaSchedule() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="font-heading text-4xl font-bold tracking-tight text-white">
-          Sampa Brazilian Jiu-Jitsu
-        </h1>
-        <div className="flex items-center gap-3 mt-1">
-          <p className="text-zinc-400">Class Schedule</p>
+        <div className="flex items-center gap-4">
+          <h1 className="font-heading text-4xl font-bold tracking-tight text-white">
+            Sampa Brazilian Jiu-Jitsu
+          </h1>
           {locations.length > 1 && (
             <select
-              value={locationFilter ?? ""}
-              onChange={(e) => setLocationFilter(e.target.value || null)}
-              className="bg-zinc-800 border border-zinc-700 rounded-md px-2 py-1 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 cursor-pointer"
+              value={locationFilter ?? defaultLocation?.name ?? ""}
+              onChange={(e) => setLocationAndParam(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 cursor-pointer"
             >
-              <option value="">All Locations</option>
               {locations.map((loc) => (
                 <option key={loc.id} value={loc.name}>{loc.name}</option>
               ))}
             </select>
           )}
         </div>
+        <p className="text-zinc-400 mt-1">Class Schedule</p>
       </div>
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <ProgramTabs active={activeProgram} onSelect={(p) => { setActiveProgram(p); setClassFilter(null); setLocationFilter(null); }} />
+        <ProgramTabs active={activeProgram} onSelect={(p) => { setActiveProgram(p); setClassFilter(null); }} />
         <div className="flex-1" />
         <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
         <button
@@ -178,15 +211,13 @@ export function SampaSchedule() {
         </div>
       )}
 
-      {/* Filters */}
+      {/* Class name filter */}
       {!loading && (
         <div className="space-y-2 mb-4">
-          {/* Class name filter */}
           {classNames.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              <span className="text-xs text-zinc-500 self-center mr-1">Class:</span>
               <Pill
-                label="All"
+                label="All Classes"
                 active={classFilter === null}
                 onClick={() => setClassFilter(null)}
                 size="sm"
