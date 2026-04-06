@@ -20,8 +20,11 @@ export function SampaSchedule() {
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
   const [classFilter, setClassFilter] = useState<string | null>(null);
 
-  const { classes, notes, loading, createClass, updateClass, deleteClass, resetClasses } =
-    useClasses(activeProgram);
+  const {
+    classes, notes, loading,
+    createClass, updateClass, deleteClass, resetClasses,
+    createNote, updateNote, deleteNote,
+  } = useClasses(activeProgram);
 
   // Unique class names for filter pills
   const classNames = useMemo(
@@ -198,7 +201,13 @@ export function SampaSchedule() {
       )}
 
       {/* Program Notes */}
-      <ProgramNotes notes={notes} />
+      <ProgramNotes
+        notes={notes}
+        editMode={editMode}
+        onAdd={createNote}
+        onUpdate={updateNote}
+        onDelete={deleteNote}
+      />
 
       {/* Form Modal */}
       {showForm && (
