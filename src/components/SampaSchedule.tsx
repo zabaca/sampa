@@ -47,9 +47,8 @@ export function SampaSchedule() {
     const paramLoc = searchParams.get("location");
     if (paramLoc && locations.some((l) => l.name === paramLoc)) {
       setLocationFilter(paramLoc);
-    } else if (defaultLocation) {
-      setLocationFilter(defaultLocation.name);
     }
+    // Default to null (all locations)
     setLocationInitialized(true);
   }, [locations, defaultLocation, searchParams, locationInitialized]);
 
@@ -100,11 +99,15 @@ export function SampaSchedule() {
   }, [programClasses, classFilter]);
 
   // Sync location filter to URL
-  const setLocationAndParam = (loc: string) => {
+  const setLocationAndParam = (loc: string | null) => {
     setLocationFilter(loc);
     setClassFilter(null);
     const params = new URLSearchParams(searchParams.toString());
-    params.set("location", loc);
+    if (loc) {
+      params.set("location", loc);
+    } else {
+      params.delete("location");
+    }
     router.replace(`?${params.toString()}`, { scroll: false });
   };
 
@@ -185,10 +188,11 @@ export function SampaSchedule() {
           </h1>
           {locations.length > 1 && (
             <select
-              value={locationFilter ?? defaultLocation?.name ?? ""}
-              onChange={(e) => setLocationAndParam(e.target.value)}
+              value={locationFilter ?? ""}
+              onChange={(e) => setLocationAndParam(e.target.value || null)}
               className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 cursor-pointer"
             >
+              <option value="">All Locations</option>
               {locations.map((loc) => (
                 <option key={loc.id} value={loc.name}>{loc.name}</option>
               ))}
