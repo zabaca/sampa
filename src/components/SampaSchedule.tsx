@@ -40,12 +40,6 @@ export function SampaSchedule() {
     [classes]
   );
 
-  // Unique location names used by current classes
-  const usedLocations = useMemo(
-    () => [...new Set(classes.map((c) => c.location).filter(Boolean))] as string[],
-    [classes]
-  );
-
   // Filtered classes
   const filteredClasses = useMemo(() => {
     let result = classes;
@@ -128,7 +122,21 @@ export function SampaSchedule() {
         <h1 className="font-heading text-4xl font-bold tracking-tight text-white">
           Sampa Brazilian Jiu-Jitsu
         </h1>
-        <p className="text-zinc-400 mt-1">Class Schedule</p>
+        <div className="flex items-center gap-3 mt-1">
+          <p className="text-zinc-400">Class Schedule</p>
+          {locations.length > 1 && (
+            <select
+              value={locationFilter ?? ""}
+              onChange={(e) => setLocationFilter(e.target.value || null)}
+              className="bg-zinc-800 border border-zinc-700 rounded-md px-2 py-1 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 cursor-pointer"
+            >
+              <option value="">All Locations</option>
+              {locations.map((loc) => (
+                <option key={loc.id} value={loc.name}>{loc.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
       </div>
 
       {/* Controls */}
@@ -173,28 +181,6 @@ export function SampaSchedule() {
       {/* Filters */}
       {!loading && (
         <div className="space-y-2 mb-4">
-          {/* Location filter */}
-          {usedLocations.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              <span className="text-xs text-zinc-500 self-center mr-1">Location:</span>
-              <Pill
-                label="All"
-                active={locationFilter === null}
-                onClick={() => setLocationFilter(null)}
-                size="sm"
-              />
-              {locations.map((loc) => (
-                <Pill
-                  key={loc.id}
-                  label={loc.name}
-                  active={locationFilter === loc.name}
-                  onClick={() => setLocationFilter(locationFilter === loc.name ? null : loc.name)}
-                  size="sm"
-                />
-              ))}
-            </div>
-          )}
-
           {/* Class name filter */}
           {classNames.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
