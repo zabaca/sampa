@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ClassItem, Day } from "@/lib/constants";
 import { DAYS, DAY_FULL } from "@/lib/constants";
-import { isMorning, sortByTime } from "@/lib/time";
+import { isMorning, sortByTime, MORNING_SLOTS, EVENING_SLOTS } from "@/lib/time";
 import { ClassCard } from "./ClassCard";
 
 type CalendarViewProps = {
@@ -25,8 +25,16 @@ export function CalendarView({ classes, editMode, onEdit, onDelete, onDrop }: Ca
   const eveningClasses = classes.filter((c) => !isMorning(c.time));
 
   // Get unique sorted times per section
-  const morningTimes = [...new Set(morningClasses.map((c) => c.time))].sort(sortByTime);
-  const eveningTimes = [...new Set(eveningClasses.map((c) => c.time))].sort(sortByTime);
+  // In edit mode, show all available slots merged with existing class times
+  const usedMorningTimes = [...new Set(morningClasses.map((c) => c.time))];
+  const usedEveningTimes = [...new Set(eveningClasses.map((c) => c.time))];
+
+  const morningTimes = editMode
+    ? [...new Set([...MORNING_SLOTS, ...usedMorningTimes])].sort(sortByTime)
+    : usedMorningTimes.sort(sortByTime);
+  const eveningTimes = editMode
+    ? [...new Set([...EVENING_SLOTS, ...usedEveningTimes])].sort(sortByTime)
+    : usedEveningTimes.sort(sortByTime);
 
   const handleDragStart = (e: React.DragEvent, classId: string) => {
     e.dataTransfer.setData("text/plain", classId);
