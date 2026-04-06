@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ClassItem, Program, Day } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
 import { ProgramTabs } from "./ProgramTabs";
@@ -9,6 +9,7 @@ import { CalendarView } from "./CalendarView";
 import { ListView } from "./ListView";
 import { ClassForm } from "./ClassForm";
 import { ProgramNotes } from "./ProgramNotes";
+import { Pill } from "./Pill";
 
 export function SampaSchedule() {
   const [activeProgram, setActiveProgram] = useState<Program>("Adult BJJ");
@@ -17,9 +18,22 @@ export function SampaSchedule() {
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
+  const [classFilter, setClassFilter] = useState<string | null>(null);
 
   const { classes, notes, loading, createClass, updateClass, deleteClass, resetClasses } =
     useClasses(activeProgram);
+
+  // Unique class names for filter pills
+  const classNames = useMemo(
+    () => [...new Set(classes.map((c) => c.name))].sort(),
+    [classes]
+  );
+
+  // Filtered classes
+  const filteredClasses = useMemo(
+    () => (classFilter ? classes.filter((c) => c.name === classFilter) : classes),
+    [classes, classFilter]
+  );
 
   const findSiblings = (item: ClassItem): ClassItem[] => {
     return classes.filter(
@@ -105,7 +119,7 @@ export function SampaSchedule() {
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <ProgramTabs active={activeProgram} onSelect={setActiveProgram} />
+        <ProgramTabs active={activeProgram} onSelect={(p) => { setActiveProgram(p); setClassFilter(null); }} />
         <div className="flex-1" />
         <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
         <button
@@ -142,12 +156,33 @@ export function SampaSchedule() {
         </div>
       )}
 
+      {/* Class name filter */}
+      {!loading && classNames.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <Pill
+            label="All Classes"
+            active={classFilter === null}
+            onClick={() => setClassFilter(null)}
+            size="sm"
+          />
+          {classNames.map((name) => (
+            <Pill
+              key={name}
+              label={name}
+              active={classFilter === name}
+              onClick={() => setClassFilter(classFilter === name ? null : name)}
+              size="sm"
+            />
+          ))}
+        </div>
+      )}
+
       {/* Loading */}
       {loading ? (
         <div className="text-center text-zinc-500 py-12">Loading schedule...</div>
       ) : viewMode === "calendar" ? (
         <CalendarView
-          classes={classes}
+          classes={filteredClasses}
           editMode={editMode}
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -155,7 +190,7 @@ export function SampaSchedule() {
         />
       ) : (
         <ListView
-          classes={classes}
+          classes={filteredClasses}
           editMode={editMode}
           onEdit={handleEdit}
           onDelete={handleDelete}
