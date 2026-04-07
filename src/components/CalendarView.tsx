@@ -93,7 +93,7 @@ export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDel
             {/* Time rows */}
             {times.map((time) => (
               <div key={`row-${time}`} className="contents">
-                <div className="p-2 text-xs text-surface-muted font-medium flex items-start pt-3">
+                <div className="p-2 text-xs text-surface-muted font-medium flex items-start pt-3 border-b border-surface-border/50">
                   {time}
                 </div>
                 {activeDays.map((day) => {
@@ -106,7 +106,7 @@ export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDel
                   return (
                     <div
                       key={cellKey}
-                      className={`p-1 min-h-[60px] space-y-1 transition-colors rounded ${
+                      className={`p-1 min-h-[60px] space-y-1 transition-colors rounded border-b border-surface-border/50 ${
                         editMode ? "cursor-default" : ""
                       } ${isDragOver ? "bg-surface-border/50 ring-1 ring-surface-muted" : ""}`}
                       onDragOver={editMode ? (e) => handleDragOver(e, cellKey) : undefined}
