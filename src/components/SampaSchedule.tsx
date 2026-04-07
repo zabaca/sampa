@@ -33,7 +33,17 @@ export function SampaSchedule() {
   const [classFilters, setClassFilters] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [locationInitialized, setLocationInitialized] = useState(false);
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "dark";
+    const saved = localStorage.getItem("sampa-theme");
+    if (saved === "dark" || saved === "light") return saved;
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
+
+  const handleThemeChange = (t: Theme) => {
+    setTheme(t);
+    localStorage.setItem("sampa-theme", t);
+  };
 
   const {
     allClasses, allNotes, loading,
@@ -210,7 +220,7 @@ export function SampaSchedule() {
         </div>
         <div className="flex items-center gap-3 mt-1">
           <p className="text-surface-muted">Class Schedule</p>
-          <ThemeSwitcher current={theme} onChange={setTheme} />
+          <ThemeSwitcher current={theme} onChange={handleThemeChange} />
         </div>
       </div>
 
