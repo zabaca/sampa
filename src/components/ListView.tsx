@@ -8,11 +8,12 @@ import { Pill } from "./Pill";
 type ListViewProps = {
   classes: ClassItem[];
   editMode: boolean;
+  colorMap: Map<string, string>;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
 };
 
-export function ListView({ classes, editMode, onEdit, onDelete }: ListViewProps) {
+export function ListView({ classes, editMode, colorMap, onEdit, onDelete }: ListViewProps) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<"Morning" | "Evening" | null>(null);
 
@@ -103,6 +104,7 @@ export function ListView({ classes, editMode, onEdit, onDelete }: ListViewProps)
                     item={item}
                     variant="list"
                     editMode={editMode}
+                    colorMap={colorMap}
                     onEdit={onEdit}
                     onDelete={onDelete}
                   />

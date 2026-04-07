@@ -6,14 +6,15 @@ type ClassCardProps = {
   item: ClassItem;
   variant: "calendar" | "list";
   editMode: boolean;
+  colorMap?: Map<string, string>;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
 };
 
-export function ClassCard({ item, variant, editMode, onEdit, onDelete, draggable, onDragStart }: ClassCardProps) {
-  const colors = classColor(item.name);
+export function ClassCard({ item, variant, editMode, colorMap, onEdit, onDelete, draggable, onDragStart }: ClassCardProps) {
+  const colors = classColor(item.name, colorMap);
 
   if (variant === "calendar") {
     return (

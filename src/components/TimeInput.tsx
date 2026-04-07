@@ -1,0 +1,78 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { MORNING_SLOTS, EVENING_SLOTS } from "@/lib/time";
+
+const ALL_SLOTS = [...MORNING_SLOTS, ...EVENING_SLOTS];
+
+type TimeInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+};
+
+export function TimeInput({ value, onChange, className }: TimeInputProps) {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState(value);
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setFilter(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  const filtered = ALL_SLOTS.filter((s) =>
+    s.toLowerCase().replace(/\s/g, "").includes(filter.toLowerCase().replace(/\s/g, ""))
+  );
+
+  const handleSelect = (slot: string) => {
+    onChange(slot);
+    setFilter(slot);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      <input
+        ref={inputRef}
+        className={className}
+        value={filter}
+        onChange={(e) => {
+          setFilter(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder="e.g. 5:15 AM"
+        required
+      />
+      {open && filtered.length > 0 && (
+        <ul className="absolute top-full left-0 right-0 mt-1 z-50 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl max-h-48 overflow-y-auto">
+          {filtered.map((slot) => (
+            <li key={slot}>
+              <button
+                type="button"
+                className={`w-full text-left px-3 py-1.5 text-sm cursor-pointer hover:bg-zinc-700 ${
+                  slot === value ? "text-white bg-zinc-700" : "text-zinc-300"
+                }`}
+                onClick={() => handleSelect(slot)}
+              >
+                {slot}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PROGRAMS, DAYS, type ClassItem, type Day } from "@/lib/constants";
 import { Pill } from "./Pill";
+import { TimeInput } from "./TimeInput";
 import type { LocationItem } from "@/hooks/useLocations";
 
 type ClassFormData = Omit<ClassItem, "id" | "day"> & { id?: string; days: Day[] };
@@ -102,12 +103,10 @@ export function ClassForm({ initial, siblingDays, locations, defaultLocation, on
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass}>Time</label>
-            <input
+            <TimeInput
               className={inputClass}
               value={time}
-              onChange={(e) => setTime(e.target.value)}
-              placeholder="e.g. 5:15 AM"
-              required
+              onChange={setTime}
             />
           </div>
           <div>

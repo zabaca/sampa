@@ -17,6 +17,12 @@ export const locations = sqliteTable("locations", {
   is_default: integer("is_default").default(0).notNull(),
 });
 
+export const classColors = sqliteTable("class_colors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  class_name: text("class_name").notNull().unique(),
+  color_key: text("color_key").notNull(),
+});
+
 export const programNotes = sqliteTable("program_notes", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   program: text("program").notNull(),

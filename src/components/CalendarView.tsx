@@ -7,12 +7,13 @@ import { ClassCard } from "./ClassCard";
 type CalendarViewProps = {
   classes: ClassItem[];
   editMode: boolean;
+  colorMap: Map<string, string>;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
   onDrop: (classId: string, day: Day, time: string) => void;
 };
 
-export function CalendarView({ classes, editMode, onEdit, onDelete, onDrop }: CalendarViewProps) {
+export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, onDrop }: CalendarViewProps) {
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
 
   // In edit mode show all 7 days; otherwise only days with classes
@@ -116,6 +117,7 @@ export function CalendarView({ classes, editMode, onEdit, onDelete, onDrop }: Ca
                           item={cls}
                           variant="calendar"
                           editMode={editMode}
+                          colorMap={colorMap}
                           onEdit={onEdit}
                           onDelete={onDelete}
                           draggable={editMode}

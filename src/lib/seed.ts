@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { classes, programNotes, locations } from "./schema";
+import { classes, programNotes, locations, classColors } from "./schema";
 import { isNull } from "drizzle-orm";
 import type { InferInsertModel } from "drizzle-orm";
 
@@ -158,8 +158,37 @@ export const seedLocations: InferInsertModel<typeof locations>[] = [
   { name: "Room B", is_default: 0 },
 ];
 
+export const seedClassColors: InferInsertModel<typeof classColors>[] = [
+  { class_name: "No-Gi", color_key: "red" },
+  { class_name: "Fundamental", color_key: "blue" },
+  { class_name: "Intro", color_key: "green" },
+  { class_name: "Advanced", color_key: "purple" },
+  { class_name: "Competition Training", color_key: "amber" },
+  { class_name: "Open Mat", color_key: "gray" },
+  { class_name: "Muay Thai", color_key: "orange" },
+  { class_name: "Kickboxing", color_key: "orange" },
+  { class_name: "Striking Fundamentals", color_key: "orange" },
+  { class_name: "Muay Thai Advanced", color_key: "orange" },
+  { class_name: "Muay Thai Sparring", color_key: "orange" },
+  { class_name: "Boxing", color_key: "rose" },
+  { class_name: "Wrestling", color_key: "cyan" },
+  { class_name: "Little Champions", color_key: "pink" },
+  { class_name: "Tiny Grapplers", color_key: "pink" },
+  { class_name: "All Levels", color_key: "teal" },
+  { class_name: "Youth Fundamental", color_key: "blue" },
+  { class_name: "Youth No-Gi", color_key: "red" },
+  { class_name: "Youth All Levels", color_key: "teal" },
+  { class_name: "Youth Competition", color_key: "amber" },
+  { class_name: "Youth Open Mat", color_key: "gray" },
+  { class_name: "Teens BJJ", color_key: "indigo" },
+  { class_name: "Teens No-Gi", color_key: "red" },
+  { class_name: "Positional Drilling", color_key: "indigo" },
+  { class_name: "Womens Intro", color_key: "green" },
+];
+
 export async function seed() {
   await db.delete(programNotes);
+  await db.delete(classColors);
   await db.delete(classes);
   await db.delete(locations);
   await db.insert(locations).values(seedLocations);
@@ -169,5 +198,6 @@ export async function seed() {
   if (defaultLoc) {
     await db.update(classes).set({ location: defaultLoc.name }).where(isNull(classes.location));
   }
+  await db.insert(classColors).values(seedClassColors);
   await db.insert(programNotes).values(seedProgramNotes);
 }

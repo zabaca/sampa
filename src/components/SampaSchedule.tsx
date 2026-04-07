@@ -6,6 +6,8 @@ import type { ClassItem, Program, Day } from "@/lib/constants";
 import { PROGRAMS } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
 import { useLocations } from "@/hooks/useLocations";
+import { useClassColors } from "@/hooks/useClassColors";
+import { COLOR_PALETTE } from "@/lib/colors";
 import { ProgramTabs } from "./ProgramTabs";
 import { ViewToggle } from "./ViewToggle";
 import { CalendarView } from "./CalendarView";
@@ -13,7 +15,10 @@ import { ListView } from "./ListView";
 import { ClassForm } from "./ClassForm";
 import { ProgramNotes } from "./ProgramNotes";
 import { LocationManager } from "./LocationManager";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import { Pill } from "./Pill";
+import { ClassFilterPill } from "./ClassFilterPill";
+import { THEMES, DEFAULT_THEME, type Theme } from "@/lib/themes";
 
 export function SampaSchedule() {
   const router = useRouter();
@@ -25,9 +30,10 @@ export function SampaSchedule() {
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
-  const [classFilter, setClassFilter] = useState<string | null>(null);
+  const [classFilters, setClassFilters] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [locationInitialized, setLocationInitialized] = useState(false);
+  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
 
   const {
     allClasses, allNotes, loading,
@@ -39,6 +45,8 @@ export function SampaSchedule() {
     locations, defaultLocation,
     createLocation, updateLocation, deleteLocation,
   } = useLocations();
+
+  const { colorMap, setColor: setClassColor } = useClassColors();
 
   // Initialize location filter from URL param or default location
   useEffect(() => {
@@ -70,7 +78,7 @@ export function SampaSchedule() {
   useEffect(() => {
     if (availablePrograms.length > 0 && !availablePrograms.includes(activeProgram)) {
       setActiveProgram(availablePrograms[0]);
-      setClassFilter(null);
+      setClassFilters(new Set());
     }
   }, [availablePrograms, activeProgram]);
 
@@ -94,14 +102,14 @@ export function SampaSchedule() {
 
   // Final filtered classes
   const filteredClasses = useMemo(() => {
-    if (classFilter) return programClasses.filter((c) => c.name === classFilter);
+    if (classFilters.size > 0) return programClasses.filter((c) => classFilters.has(c.name));
     return programClasses;
-  }, [programClasses, classFilter]);
+  }, [programClasses, classFilters]);
 
   // Sync location filter to URL
   const setLocationAndParam = (loc: string | null) => {
     setLocationFilter(loc);
-    setClassFilter(null);
+    setClassFilters(new Set());
     const params = new URLSearchParams(searchParams.toString());
     if (loc) {
       params.set("location", loc);
@@ -179,11 +187,12 @@ export function SampaSchedule() {
   };
 
   return (
+    <div className={`min-h-screen ${theme.bg} ${theme.text} transition-colors`}>
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4">
-          <h1 className="font-heading text-4xl font-bold tracking-tight text-white">
+          <h1 className="font-heading text-4xl font-bold tracking-tight">
             Sampa Brazilian Jiu-Jitsu
           </h1>
           {locations.length > 1 && (
@@ -199,7 +208,10 @@ export function SampaSchedule() {
             </select>
           )}
         </div>
-        <p className="text-zinc-400 mt-1">Class Schedule</p>
+        <div className="flex items-center gap-3 mt-1">
+          <p className={theme.textMuted}>Class Schedule</p>
+          <ThemeSwitcher current={theme} onChange={setTheme} />
+        </div>
       </div>
 
       {/* Controls */}
@@ -207,7 +219,7 @@ export function SampaSchedule() {
         <ProgramTabs
           programs={availablePrograms}
           active={activeProgram}
-          onSelect={(p) => { setActiveProgram(p); setClassFilter(null); }}
+          onSelect={(p) => { setActiveProgram(p); setClassFilters(new Set()); }}
         />
         <div className="flex-1" />
         <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
@@ -247,20 +259,29 @@ export function SampaSchedule() {
 
       {/* Class name filter */}
       {!loading && classNames.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-4 items-center">
           <Pill
             label="All Classes"
-            active={classFilter === null}
-            onClick={() => setClassFilter(null)}
+            active={classFilters.size === 0}
+            onClick={() => setClassFilters(new Set())}
             size="sm"
           />
           {classNames.map((name) => (
-            <Pill
+            <ClassFilterPill
               key={name}
-              label={name}
-              active={classFilter === name}
-              onClick={() => setClassFilter(classFilter === name ? null : name)}
-              size="sm"
+              name={name}
+              active={classFilters.has(name)}
+              colorMap={colorMap}
+              editMode={editMode}
+              onToggle={() => {
+                setClassFilters((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(name)) next.delete(name);
+                  else next.add(name);
+                  return next;
+                });
+              }}
+              onColorChange={(colorKey) => setClassColor(name, colorKey)}
             />
           ))}
         </div>
@@ -273,6 +294,7 @@ export function SampaSchedule() {
         <CalendarView
           classes={filteredClasses}
           editMode={editMode}
+          colorMap={colorMap}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDrop={handleDrop}
@@ -281,6 +303,7 @@ export function SampaSchedule() {
         <ListView
           classes={filteredClasses}
           editMode={editMode}
+          colorMap={colorMap}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
@@ -322,6 +345,7 @@ export function SampaSchedule() {
           }}
         />
       )}
+    </div>
     </div>
   );
 }
