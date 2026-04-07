@@ -50,13 +50,15 @@ export function ClassFilterPill({
         {name}
         {editMode && (
           <span
-            className="ml-1 text-[10px] opacity-60 hover:opacity-100"
+            className="ml-0.5 opacity-60 hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation();
               setShowPicker(!showPicker);
             }}
           >
-            ●
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
+              <path d="M13.488 2.513a1.75 1.75 0 00-2.475 0L3.05 10.476a1.75 1.75 0 00-.46.84l-.497 2.486a.75.75 0 00.882.882l2.486-.497a1.75 1.75 0 00.84-.46l7.963-7.963a1.75 1.75 0 000-2.475l-.776-.776zm-1.415 1.06a.25.25 0 01.354 0l.776.776a.25.25 0 010 .354L5.24 12.666a.25.25 0 01-.12.066l-1.567.313.313-1.567a.25.25 0 01.066-.12l7.963-7.963z" />
+            </svg>
           </span>
         )}
       </button>

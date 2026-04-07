@@ -18,7 +18,7 @@ import { LocationManager } from "./LocationManager";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { Pill } from "./Pill";
 import { ClassFilterPill } from "./ClassFilterPill";
-import { THEMES, DEFAULT_THEME, type Theme } from "@/lib/themes";
+import { themeClasses, type Theme } from "@/lib/themes";
 
 export function SampaSchedule() {
   const router = useRouter();
@@ -33,7 +33,8 @@ export function SampaSchedule() {
   const [classFilters, setClassFilters] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [locationInitialized, setLocationInitialized] = useState(false);
-  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
+  const [theme, setTheme] = useState<Theme>("dark");
+  const t = themeClasses[theme];
 
   const {
     allClasses, allNotes, loading,
@@ -187,7 +188,7 @@ export function SampaSchedule() {
   };
 
   return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text} transition-colors`}>
+    <div className={`min-h-screen ${t.bg} ${t.text} transition-colors`}>
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
@@ -209,7 +210,7 @@ export function SampaSchedule() {
           )}
         </div>
         <div className="flex items-center gap-3 mt-1">
-          <p className={theme.textMuted}>Class Schedule</p>
+          <p className={t.textMuted}>Class Schedule</p>
           <ThemeSwitcher current={theme} onChange={setTheme} />
         </div>
       </div>
