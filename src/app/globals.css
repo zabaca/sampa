@@ -4,9 +4,49 @@
   --color-sampa-red: #C22027;
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-barlow), "Barlow Condensed", sans-serif;
+
+  --color-surface-bg: var(--surface-bg);
+  --color-surface-card: var(--surface-card);
+  --color-surface-border: var(--surface-border);
+  --color-surface-text: var(--surface-text);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-input: var(--surface-input);
+}
+
+[data-theme="dark"] {
+  --surface-bg: #09090b;
+  --surface-card: #18181b;
+  --surface-border: #27272a;
+  --surface-text: #f4f4f5;
+  --surface-muted: #a1a1aa;
+  --surface-input: #27272a;
+}
+
+[data-theme="light"] {
+  --surface-bg: #ffffff;
+  --surface-card: #f9fafb;
+  --surface-border: #d1d5db;
+  --surface-text: #18181b;
+  --surface-muted: #6b7280;
+  --surface-input: #ffffff;
 }
 
 body {
-  background: #09090b;
-  color: #f4f4f5;
+  background: var(--surface-bg);
+  color: var(--surface-text);
 }
+
+/* Badge variants — theme-aware */
+[data-theme="dark"] .badge-invite { background: rgb(120 53 15 / 0.5); color: #fcd34d; border-color: #b45309; }
+[data-theme="dark"] .badge-age { background: rgb(30 58 138 / 0.5); color: #93c5fd; border-color: #1d4ed8; }
+[data-theme="dark"] .badge-location { background: rgb(20 83 45 / 0.5); color: #86efac; border-color: #15803d; }
+
+[data-theme="light"] .badge-invite { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+[data-theme="light"] .badge-age { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+[data-theme="light"] .badge-location { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+/* Delete button — theme-aware */
+[data-theme="dark"] .btn-delete { background: rgb(127 29 29 / 0.5); color: #f87171; }
+[data-theme="dark"] .btn-delete:hover { background: rgb(153 27 27 / 0.7); }
+[data-theme="light"] .btn-delete { background: #fee2e2; color: #dc2626; }
+[data-theme="light"] .btn-delete:hover { background: #fecaca; }

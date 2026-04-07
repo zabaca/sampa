@@ -4,15 +4,18 @@ import { DAYS, DAY_FULL } from "@/lib/constants";
 import { getTimePeriod, sortByTime } from "@/lib/time";
 import { ClassCard } from "./ClassCard";
 import { Pill } from "./Pill";
+import type { Theme } from "@/lib/themes";
 
 type ListViewProps = {
   classes: ClassItem[];
   editMode: boolean;
+  colorMap: Map<string, string>;
+  theme: Theme;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
 };
 
-export function ListView({ classes, editMode, onEdit, onDelete }: ListViewProps) {
+export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete }: ListViewProps) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<"Morning" | "Evening" | null>(null);
 
@@ -86,14 +89,14 @@ export function ListView({ classes, editMode, onEdit, onDelete }: ListViewProps)
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="text-center text-zinc-500 py-12">
+        <div className="text-center text-surface-muted py-12">
           No classes match the selected filters.
         </div>
       ) : (
         <div className="space-y-4">
           {Array.from(grouped.entries()).map(([day, items]) => (
             <div key={day}>
-              <h3 className="text-sm font-semibold text-zinc-400 mb-2">
+              <h3 className="text-sm font-semibold text-surface-muted mb-2">
                 {DAY_FULL[day as keyof typeof DAY_FULL] ?? day}
               </h3>
               <div className="space-y-2">
@@ -103,6 +106,8 @@ export function ListView({ classes, editMode, onEdit, onDelete }: ListViewProps)
                     item={item}
                     variant="list"
                     editMode={editMode}
+                    colorMap={colorMap}
+                    theme={theme}
                     onEdit={onEdit}
                     onDelete={onDelete}
                   />

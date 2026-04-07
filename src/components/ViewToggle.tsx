@@ -8,8 +8,8 @@ export function ViewToggle({ viewMode, onToggle }: ViewToggleProps) {
     <button
       className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors cursor-pointer ${
         viewMode === mode
-          ? "bg-zinc-700 text-white"
-          : "text-zinc-400 hover:text-zinc-200"
+          ? "bg-surface-border text-surface-text"
+          : "text-surface-muted hover:text-surface-text"
       }`}
       onClick={() => onToggle(mode)}
     >
@@ -18,7 +18,7 @@ export function ViewToggle({ viewMode, onToggle }: ViewToggleProps) {
   );
 
   return (
-    <div className="flex bg-zinc-800/50 rounded-lg p-1 gap-1">
+    <div className="flex bg-surface-card rounded-lg p-1 gap-1">
       {btn("calendar", "Calendar")}
       {btn("list", "List")}
     </div>
