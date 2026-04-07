@@ -18,7 +18,7 @@ import { LocationManager } from "./LocationManager";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { Pill } from "./Pill";
 import { ClassFilterPill } from "./ClassFilterPill";
-import { themeClasses, type Theme } from "@/lib/themes";
+import type { Theme } from "@/lib/themes";
 
 export function SampaSchedule() {
   const router = useRouter();
@@ -34,7 +34,6 @@ export function SampaSchedule() {
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [locationInitialized, setLocationInitialized] = useState(false);
   const [theme, setTheme] = useState<Theme>("dark");
-  const t = themeClasses[theme];
 
   const {
     allClasses, allNotes, loading,
@@ -188,7 +187,7 @@ export function SampaSchedule() {
   };
 
   return (
-    <div className={`min-h-screen ${t.bg} ${t.text} transition-colors`}>
+    <div data-theme={theme} className="min-h-screen bg-surface-bg text-surface-text transition-colors">
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
@@ -200,7 +199,7 @@ export function SampaSchedule() {
             <select
               value={locationFilter ?? ""}
               onChange={(e) => setLocationAndParam(e.target.value || null)}
-              className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-zinc-300 focus:outline-none focus:border-zinc-500 cursor-pointer"
+              className="bg-surface-card border border-surface-border rounded-md px-3 py-1.5 text-sm text-surface-muted focus:outline-none cursor-pointer"
             >
               <option value="">All Locations</option>
               {locations.map((loc) => (
@@ -210,7 +209,7 @@ export function SampaSchedule() {
           )}
         </div>
         <div className="flex items-center gap-3 mt-1">
-          <p className={t.textMuted}>Class Schedule</p>
+          <p className="text-surface-muted">Class Schedule</p>
           <ThemeSwitcher current={theme} onChange={setTheme} />
         </div>
       </div>
@@ -229,7 +228,7 @@ export function SampaSchedule() {
           className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors cursor-pointer ${
             editMode
               ? "bg-amber-600 text-white"
-              : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+              : "bg-surface-card text-surface-muted hover:text-surface-text"
           }`}
         >
           {editMode ? "Done Editing" : "Edit"}
@@ -251,7 +250,7 @@ export function SampaSchedule() {
           </button>
           <button
             onClick={handleReset}
-            className="px-3 py-1.5 text-sm rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 font-medium cursor-pointer transition-colors"
+            className="px-3 py-1.5 text-sm rounded-md bg-surface-card hover:opacity-80 text-surface-muted font-medium cursor-pointer transition-colors"
           >
             Reset to Default
           </button>
@@ -274,6 +273,7 @@ export function SampaSchedule() {
               active={classFilters.has(name)}
               colorMap={colorMap}
               editMode={editMode}
+              theme={theme}
               onToggle={() => {
                 setClassFilters((prev) => {
                   const next = new Set(prev);
@@ -296,6 +296,7 @@ export function SampaSchedule() {
           classes={filteredClasses}
           editMode={editMode}
           colorMap={colorMap}
+          theme={theme}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDrop={handleDrop}
@@ -305,6 +306,7 @@ export function SampaSchedule() {
           classes={filteredClasses}
           editMode={editMode}
           colorMap={colorMap}
+          theme={theme}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

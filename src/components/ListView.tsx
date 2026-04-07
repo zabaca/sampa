@@ -4,16 +4,18 @@ import { DAYS, DAY_FULL } from "@/lib/constants";
 import { getTimePeriod, sortByTime } from "@/lib/time";
 import { ClassCard } from "./ClassCard";
 import { Pill } from "./Pill";
+import type { Theme } from "@/lib/themes";
 
 type ListViewProps = {
   classes: ClassItem[];
   editMode: boolean;
   colorMap: Map<string, string>;
+  theme: Theme;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
 };
 
-export function ListView({ classes, editMode, colorMap, onEdit, onDelete }: ListViewProps) {
+export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete }: ListViewProps) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<"Morning" | "Evening" | null>(null);
 
@@ -105,6 +107,7 @@ export function ListView({ classes, editMode, colorMap, onEdit, onDelete }: List
                     variant="list"
                     editMode={editMode}
                     colorMap={colorMap}
+                    theme={theme}
                     onEdit={onEdit}
                     onDelete={onDelete}
                   />

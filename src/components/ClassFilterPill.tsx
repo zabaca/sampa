@@ -2,12 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { classColor, COLOR_PALETTE } from "@/lib/colors";
+import type { Theme } from "@/lib/themes";
 
 type ClassFilterPillProps = {
   name: string;
   active: boolean;
   colorMap: Map<string, string>;
   editMode: boolean;
+  theme: Theme;
   onToggle: () => void;
   onColorChange: (colorKey: string) => void;
 };
@@ -17,12 +19,13 @@ export function ClassFilterPill({
   active,
   colorMap,
   editMode,
+  theme,
   onToggle,
   onColorChange,
 }: ClassFilterPillProps) {
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
-  const colors = classColor(name, colorMap);
+  const colors = classColor(name, colorMap, theme);
 
   useEffect(() => {
     if (!showPicker) return;
@@ -42,7 +45,7 @@ export function ClassFilterPill({
         className={`rounded-full font-medium transition-colors cursor-pointer select-none px-3 py-1 text-xs flex items-center gap-1.5 ${
           active
             ? "bg-[#C22027] text-white"
-            : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
+            : "bg-surface-card text-surface-muted hover:opacity-80"
         }`}
         onClick={onToggle}
       >
@@ -63,23 +66,25 @@ export function ClassFilterPill({
         )}
       </button>
       {showPicker && (
-        <div className="absolute top-full mt-1 left-0 z-50 bg-zinc-900 border border-zinc-700 rounded-lg p-2 shadow-xl grid grid-cols-4 gap-1.5 min-w-[140px]">
-          {COLOR_PALETTE.map((c) => (
+        <div className="absolute top-full mt-1 left-0 z-50 bg-surface-card border border-surface-border rounded-lg p-2 shadow-xl grid grid-cols-4 gap-1.5 min-w-[140px]">
+          {COLOR_PALETTE.map((c) => {
+            const cv = c[theme];
+            const isActive = colorMap.get(name) === c.key;
+            return (
             <button
               key={c.key}
               type="button"
               title={c.label}
-              className={`w-7 h-7 rounded-full border-2 cursor-pointer transition-transform hover:scale-110 ${c.border} ${c.bg} ${
-                colorMap.get(name) === c.key || (!colorMap.has(name) && classColor(name).border === c.border)
-                  ? "ring-2 ring-white ring-offset-1 ring-offset-zinc-900"
-                  : ""
+              className={`w-7 h-7 rounded-full border-2 cursor-pointer transition-transform hover:scale-110 ${cv.border} ${cv.bg} ${
+                isActive ? "ring-2 ring-surface-text ring-offset-1 ring-offset-surface-card" : ""
               }`}
               onClick={() => {
                 onColorChange(c.key);
                 setShowPicker(false);
               }}
             />
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

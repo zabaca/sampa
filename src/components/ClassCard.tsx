@@ -1,20 +1,22 @@
 import type { ClassItem } from "@/lib/constants";
 import { classColor } from "@/lib/colors";
 import { Badge } from "./Badge";
+import type { Theme } from "@/lib/themes";
 
 type ClassCardProps = {
   item: ClassItem;
   variant: "calendar" | "list";
   editMode: boolean;
   colorMap?: Map<string, string>;
+  theme?: Theme;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
 };
 
-export function ClassCard({ item, variant, editMode, colorMap, onEdit, onDelete, draggable, onDragStart }: ClassCardProps) {
-  const colors = classColor(item.name, colorMap);
+export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", onEdit, onDelete, draggable, onDragStart }: ClassCardProps) {
+  const colors = classColor(item.name, colorMap, theme);
 
   if (variant === "calendar") {
     return (
@@ -24,7 +26,7 @@ export function ClassCard({ item, variant, editMode, colorMap, onEdit, onDelete,
         onDragStart={onDragStart}
       >
         <div className={`font-semibold ${colors.text} leading-tight`}>{item.name}</div>
-        <div className="text-zinc-500 mt-0.5">{item.time}</div>
+        <div className="text-surface-muted mt-0.5">{item.time}</div>
         <div className="flex gap-1 mt-1 flex-wrap">
           {item.invite_only === 1 && <Badge label="Invite Only" variant="invite" />}
           {item.age_group && <Badge label={item.age_group} variant="age" />}
@@ -64,7 +66,7 @@ export function ClassCard({ item, variant, editMode, colorMap, onEdit, onDelete,
           {item.location && <Badge label={item.location} variant="location" />}
         </div>
       </div>
-      <div className="text-xs text-zinc-500">{item.day}</div>
+      <div className="text-xs text-surface-muted">{item.day}</div>
       {editMode && (
         <div className="flex gap-1">
           <button

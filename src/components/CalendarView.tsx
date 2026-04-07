@@ -3,17 +3,19 @@ import type { ClassItem, Day } from "@/lib/constants";
 import { DAYS, DAY_FULL } from "@/lib/constants";
 import { isMorning, sortByTime, MORNING_SLOTS, EVENING_SLOTS } from "@/lib/time";
 import { ClassCard } from "./ClassCard";
+import type { Theme } from "@/lib/themes";
 
 type CalendarViewProps = {
   classes: ClassItem[];
   editMode: boolean;
   colorMap: Map<string, string>;
+  theme: Theme;
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
   onDrop: (classId: string, day: Day, time: string) => void;
 };
 
-export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, onDrop }: CalendarViewProps) {
+export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDelete, onDrop }: CalendarViewProps) {
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
 
   // In edit mode show all 7 days; otherwise only days with classes
@@ -66,12 +68,12 @@ export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, on
 
     return (
       <div className="mb-6">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 px-1">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-muted mb-3 px-1">
           {label}
         </h3>
         <div className="overflow-x-auto">
           <div
-            className="grid gap-px bg-zinc-800/30 rounded-lg min-w-[700px]"
+            className="grid gap-px bg-surface-border/30 rounded-lg min-w-[700px]"
             style={{
               gridTemplateColumns: `80px repeat(${activeDays.length}, 1fr)`,
             }}
@@ -81,7 +83,7 @@ export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, on
             {activeDays.map((day) => (
               <div
                 key={day}
-                className="p-2 text-center text-xs font-semibold text-zinc-400 border-b border-zinc-800"
+                className="p-2 text-center text-xs font-semibold text-surface-muted border-b border-surface-border"
               >
                 <span className="hidden sm:inline">{DAY_FULL[day]}</span>
                 <span className="sm:hidden">{day}</span>
@@ -91,7 +93,7 @@ export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, on
             {/* Time rows */}
             {times.map((time) => (
               <div key={`row-${time}`} className="contents">
-                <div className="p-2 text-xs text-zinc-500 font-medium flex items-start pt-3">
+                <div className="p-2 text-xs text-surface-muted font-medium flex items-start pt-3">
                   {time}
                 </div>
                 {activeDays.map((day) => {
@@ -118,6 +120,7 @@ export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, on
                           variant="calendar"
                           editMode={editMode}
                           colorMap={colorMap}
+                          theme={theme}
                           onEdit={onEdit}
                           onDelete={onDelete}
                           draggable={editMode}
@@ -137,7 +140,7 @@ export function CalendarView({ classes, editMode, colorMap, onEdit, onDelete, on
 
   if (classes.length === 0) {
     return (
-      <div className="text-center text-zinc-500 py-12">
+      <div className="text-center text-surface-muted py-12">
         No classes scheduled for this program.
       </div>
     );

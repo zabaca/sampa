@@ -4,9 +4,34 @@
   --color-sampa-red: #C22027;
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-barlow), "Barlow Condensed", sans-serif;
+
+  --color-surface-bg: var(--surface-bg);
+  --color-surface-card: var(--surface-card);
+  --color-surface-border: var(--surface-border);
+  --color-surface-text: var(--surface-text);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-input: var(--surface-input);
+}
+
+[data-theme="dark"] {
+  --surface-bg: #09090b;
+  --surface-card: #18181b;
+  --surface-border: #27272a;
+  --surface-text: #f4f4f5;
+  --surface-muted: #a1a1aa;
+  --surface-input: #27272a;
+}
+
+[data-theme="light"] {
+  --surface-bg: #ffffff;
+  --surface-card: #f4f4f5;
+  --surface-border: #e4e4e7;
+  --surface-text: #18181b;
+  --surface-muted: #71717a;
+  --surface-input: #ffffff;
 }
 
 body {
-  background: #09090b;
-  color: #f4f4f5;
+  background: var(--surface-bg);
+  color: var(--surface-text);
 }

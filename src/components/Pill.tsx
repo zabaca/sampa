@@ -10,7 +10,7 @@ export function Pill({ label, active, onClick, size = "md" }: PillProps) {
   const sizeStyles = size === "sm" ? "px-3 py-1 text-xs" : "px-4 py-1.5 text-sm";
   const colorStyles = active
     ? "bg-[#C22027] text-white"
-    : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200";
+    : "bg-surface-card text-surface-muted hover:opacity-80";
 
   return (
     <button type="button" className={`${base} ${sizeStyles} ${colorStyles}`} onClick={onClick}>
