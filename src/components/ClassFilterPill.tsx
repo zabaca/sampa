@@ -42,14 +42,13 @@ export function ClassFilterPill({
     <div className="relative" ref={pickerRef}>
       <button
         type="button"
-        className={`rounded-full font-medium transition-colors cursor-pointer select-none px-3 py-1 text-xs flex items-center gap-1.5 ${
+        className={`rounded-full font-medium transition-colors cursor-pointer select-none px-3 py-1 text-xs flex items-center gap-1.5 border ${
           active
-            ? "bg-[#C22027] text-white"
-            : "bg-surface-card text-surface-muted hover:opacity-80"
+            ? `${colors.bg} ${colors.text} ${colors.border} ring-1 ring-offset-1 ring-offset-surface-bg ${colors.border}`
+            : `${colors.bg} ${colors.text} ${colors.border}`
         }`}
         onClick={onToggle}
       >
-        <span className={`inline-block w-2 h-2 rounded-full ${colors.border} border`} />
         {name}
         {editMode && (
           <span
