@@ -54,7 +54,7 @@ export function ClassForm({ initial, siblingDays, locations, defaultLocation, on
   };
 
   const inputClass =
-    "w-full rounded-md bg-surface-card border border-surface-border px-3 py-2 text-sm text-surface-text focus:outline-none focus:border-surface-muted";
+    "w-full rounded-md bg-surface-card border border-surface-border px-3 py-2 text-sm text-surface-text focus:outline-none focus:border-surface-muted [&:is(select)]:pr-8";
   const labelClass = "block text-xs font-medium text-surface-muted mb-1";
 
   return (

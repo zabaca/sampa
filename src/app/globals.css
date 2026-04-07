@@ -24,10 +24,10 @@
 
 [data-theme="light"] {
   --surface-bg: #ffffff;
-  --surface-card: #f4f4f5;
-  --surface-border: #e4e4e7;
+  --surface-card: #f9fafb;
+  --surface-border: #d1d5db;
   --surface-text: #18181b;
-  --surface-muted: #71717a;
+  --surface-muted: #6b7280;
   --surface-input: #ffffff;
 }
 
