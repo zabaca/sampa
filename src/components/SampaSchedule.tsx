@@ -300,7 +300,7 @@ export function SampaSchedule() {
 
       {/* Loading */}
       {loading ? (
-        <div className="text-center text-zinc-500 py-12">Loading schedule...</div>
+        <div className="text-center text-surface-muted py-12">Loading schedule...</div>
       ) : viewMode === "calendar" ? (
         <CalendarView
           classes={filteredClasses}
