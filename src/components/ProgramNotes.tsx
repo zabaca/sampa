@@ -40,18 +40,18 @@ export function ProgramNotes({ notes, editMode, onAdd, onUpdate, onDelete }: Pro
   if (notes.length === 0 && !editMode) return null;
 
   return (
-    <div className="mt-6 border-t border-zinc-800 pt-4">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+    <div className="mt-6 border-t border-surface-border pt-4">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-surface-muted mb-2">
         Notes
       </h3>
       <ul className="space-y-1">
         {notes.map((n) => (
-          <li key={n.id} className="text-sm text-zinc-400 flex items-start gap-2 group">
-            <span className="text-zinc-600 mt-0.5">•</span>
+          <li key={n.id} className="text-sm text-surface-muted flex items-start gap-2 group">
+            <span className="text-surface-muted mt-0.5">•</span>
             {editMode && editingId === n.id ? (
               <div className="flex-1 flex gap-2">
                 <input
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
+                  className="flex-1 bg-surface-input border border-surface-border rounded px-2 py-1 text-sm text-surface-text focus:outline-none focus:border-surface-muted"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   onKeyDown={(e) => {
@@ -70,7 +70,7 @@ export function ProgramNotes({ notes, editMode, onAdd, onUpdate, onDelete }: Pro
                 <button
                   type="button"
                   onClick={() => setEditingId(null)}
-                  className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                  className="text-xs text-surface-muted hover:text-surface-text cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -83,7 +83,7 @@ export function ProgramNotes({ notes, editMode, onAdd, onUpdate, onDelete }: Pro
                     <button
                       type="button"
                       onClick={() => startEdit(n)}
-                      className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                      className="text-xs text-surface-muted hover:text-surface-text cursor-pointer"
                     >
                       Edit
                     </button>
@@ -104,7 +104,7 @@ export function ProgramNotes({ notes, editMode, onAdd, onUpdate, onDelete }: Pro
       {editMode && (
         <div className="flex gap-2 mt-2">
           <input
-            className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
+            className="flex-1 bg-surface-input border border-surface-border rounded px-2 py-1 text-sm text-surface-text focus:outline-none focus:border-surface-muted"
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             onKeyDown={(e) => {
@@ -116,7 +116,7 @@ export function ProgramNotes({ notes, editMode, onAdd, onUpdate, onDelete }: Pro
             type="button"
             onClick={handleAdd}
             disabled={!newNote.trim()}
-            className="px-3 py-1 text-xs rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 disabled:opacity-50 cursor-pointer transition-colors"
+            className="px-3 py-1 text-xs rounded bg-surface-border hover:bg-surface-border text-surface-text disabled:opacity-50 cursor-pointer transition-colors"
           >
             Add
           </button>

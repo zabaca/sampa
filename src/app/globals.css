@@ -35,3 +35,12 @@ body {
   background: var(--surface-bg);
   color: var(--surface-text);
 }
+
+/* Badge variants — theme-aware */
+[data-theme="dark"] .badge-invite { background: rgb(120 53 15 / 0.5); color: #fcd34d; border-color: #b45309; }
+[data-theme="dark"] .badge-age { background: rgb(30 58 138 / 0.5); color: #93c5fd; border-color: #1d4ed8; }
+[data-theme="dark"] .badge-location { background: rgb(20 83 45 / 0.5); color: #86efac; border-color: #15803d; }
+
+[data-theme="light"] .badge-invite { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+[data-theme="light"] .badge-age { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+[data-theme="light"] .badge-location { background: #dcfce7; color: #166534; border-color: #86efac; }

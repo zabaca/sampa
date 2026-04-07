@@ -106,7 +106,7 @@ export function TimeInput({ value, onChange, className }: TimeInputProps) {
       {open && filtered.length > 0 && (
         <ul
           ref={listRef}
-          className="absolute top-full left-0 right-0 mt-1 z-50 bg-zinc-800 border border-zinc-700 rounded-md shadow-xl max-h-48 overflow-y-auto"
+          className="absolute top-full left-0 right-0 mt-1 z-50 bg-surface-card border border-surface-border rounded-md shadow-xl max-h-48 overflow-y-auto"
         >
           {filtered.map((slot, i) => (
             <li key={slot}>
@@ -114,10 +114,10 @@ export function TimeInput({ value, onChange, className }: TimeInputProps) {
                 type="button"
                 className={`w-full text-left px-3 py-1.5 text-sm cursor-pointer ${
                   i === highlightIndex
-                    ? "bg-zinc-600 text-white"
+                    ? "bg-surface-border text-white"
                     : slot === value
-                      ? "bg-zinc-700 text-white"
-                      : "text-zinc-300 hover:bg-zinc-700"
+                      ? "bg-surface-border text-white"
+                      : "text-surface-text hover:bg-surface-border"
                 }`}
                 onClick={() => handleSelect(slot)}
                 onMouseEnter={() => setHighlightIndex(i)}

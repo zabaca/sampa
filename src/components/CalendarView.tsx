@@ -108,7 +108,7 @@ export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDel
                       key={cellKey}
                       className={`p-1 min-h-[60px] space-y-1 transition-colors rounded ${
                         editMode ? "cursor-default" : ""
-                      } ${isDragOver ? "bg-zinc-700/50 ring-1 ring-zinc-500" : ""}`}
+                      } ${isDragOver ? "bg-surface-border/50 ring-1 ring-surface-muted" : ""}`}
                       onDragOver={editMode ? (e) => handleDragOver(e, cellKey) : undefined}
                       onDragLeave={editMode ? handleDragLeave : undefined}
                       onDrop={editMode ? (e) => handleDrop(e, day, time) : undefined}

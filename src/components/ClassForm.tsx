@@ -54,16 +54,16 @@ export function ClassForm({ initial, siblingDays, locations, defaultLocation, on
   };
 
   const inputClass =
-    "w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500";
-  const labelClass = "block text-xs font-medium text-zinc-400 mb-1";
+    "w-full rounded-md bg-surface-card border border-surface-border px-3 py-2 text-sm text-surface-text focus:outline-none focus:border-surface-muted";
+  const labelClass = "block text-xs font-medium text-surface-muted mb-1";
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 w-full max-w-md space-y-4"
+        className="bg-surface-card border border-surface-border rounded-xl p-6 w-full max-w-md space-y-4"
       >
-        <h2 className="text-lg font-semibold text-zinc-100">
+        <h2 className="text-lg font-semibold text-surface-text">
           {initial ? "Edit Class" : "Add Class"}
         </h2>
 
@@ -148,12 +148,12 @@ export function ClassForm({ initial, siblingDays, locations, defaultLocation, on
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+        <label className="flex items-center gap-2 text-sm text-surface-text cursor-pointer">
           <input
             type="checkbox"
             checked={inviteOnly}
             onChange={(e) => setInviteOnly(e.target.checked)}
-            className="rounded border-zinc-600"
+            className="rounded border-surface-border"
           />
           Invite Only
         </label>
@@ -169,7 +169,7 @@ export function ClassForm({ initial, siblingDays, locations, defaultLocation, on
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 rounded-md text-sm cursor-pointer transition-colors"
+            className="flex-1 bg-surface-card hover:bg-surface-border text-surface-text font-medium py-2 rounded-md text-sm cursor-pointer transition-colors"
           >
             Cancel
           </button>

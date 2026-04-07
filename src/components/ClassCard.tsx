@@ -36,13 +36,13 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
           <div className="absolute top-1 right-1 hidden group-hover:flex gap-1">
             <button
               onClick={() => onEdit(item)}
-              className="w-5 h-5 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 flex items-center justify-center text-[10px] cursor-pointer"
+              className="w-5 h-5 rounded bg-surface-card hover:opacity-80 text-surface-muted flex items-center justify-center text-[10px] cursor-pointer"
             >
               ✎
             </button>
             <button
               onClick={() => onDelete(item.id)}
-              className="w-5 h-5 rounded bg-red-900/50 hover:bg-red-800 text-red-400 flex items-center justify-center text-[10px] cursor-pointer"
+              className="w-5 h-5 rounded bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center text-[10px] cursor-pointer"
             >
               ✕
             </button>
@@ -57,7 +57,7 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
     <div
       className={`flex items-center gap-3 rounded-lg border ${colors.border} ${colors.bg} px-4 py-3`}
     >
-      <div className="min-w-[70px] text-sm text-zinc-400 font-medium">{item.time}</div>
+      <div className="min-w-[70px] text-sm text-surface-muted font-medium">{item.time}</div>
       <div className="flex-1">
         <div className={`font-semibold ${colors.text}`}>{item.name}</div>
         <div className="flex gap-1.5 mt-1 flex-wrap">
@@ -71,13 +71,13 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
         <div className="flex gap-1">
           <button
             onClick={() => onEdit(item)}
-            className="px-2 py-1 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 text-xs cursor-pointer"
+            className="px-2 py-1 rounded bg-surface-card hover:opacity-80 text-surface-muted text-xs cursor-pointer"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className="px-2 py-1 rounded bg-red-900/50 hover:bg-red-800 text-red-400 text-xs cursor-pointer"
+            className="px-2 py-1 rounded bg-red-100 hover:bg-red-200 text-red-600 text-xs cursor-pointer"
           >
             Delete
           </button>

@@ -35,15 +35,15 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-      <h3 className="text-sm font-semibold text-zinc-300 mb-3">Locations</h3>
+    <div className="bg-surface-card border border-surface-border rounded-lg p-4">
+      <h3 className="text-sm font-semibold text-surface-text mb-3">Locations</h3>
       <div className="space-y-2">
         {locations.map((loc) => (
           <div key={loc.id} className="flex items-center gap-2 group">
             {editingId === loc.id ? (
               <>
                 <input
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
+                  className="flex-1 bg-surface-input border border-surface-border rounded px-2 py-1 text-sm text-surface-text focus:outline-none focus:border-surface-muted"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   onKeyDown={(e) => {
@@ -62,16 +62,16 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
                 <button
                   type="button"
                   onClick={() => setEditingId(null)}
-                  className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                  className="text-xs text-surface-muted hover:text-surface-text cursor-pointer"
                 >
                   Cancel
                 </button>
               </>
             ) : (
               <>
-                <span className="flex-1 text-sm text-zinc-300">{loc.name}</span>
+                <span className="flex-1 text-sm text-surface-text">{loc.name}</span>
                 {loc.is_default === 1 && (
-                  <span className="text-[10px] bg-zinc-700 text-zinc-400 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] bg-surface-border text-surface-muted px-1.5 py-0.5 rounded">
                     Default
                   </span>
                 )}
@@ -80,7 +80,7 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
                     <button
                       type="button"
                       onClick={() => onUpdate(loc.id, { is_default: 1 })}
-                      className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                      className="text-xs text-surface-muted hover:text-surface-text cursor-pointer"
                     >
                       Set Default
                     </button>
@@ -88,7 +88,7 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
                   <button
                     type="button"
                     onClick={() => startEdit(loc)}
-                    className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                    className="text-xs text-surface-muted hover:text-surface-text cursor-pointer"
                   >
                     Rename
                   </button>
@@ -107,7 +107,7 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
       </div>
       <div className="flex gap-2 mt-3">
         <input
-          className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
+          className="flex-1 bg-surface-input border border-surface-border rounded px-2 py-1 text-sm text-surface-text focus:outline-none focus:border-surface-muted"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => {
@@ -119,7 +119,7 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
           type="button"
           onClick={handleAdd}
           disabled={!newName.trim()}
-          className="px-3 py-1 text-xs rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 disabled:opacity-50 cursor-pointer transition-colors"
+          className="px-3 py-1 text-xs rounded bg-surface-border hover:bg-surface-border text-surface-text disabled:opacity-50 cursor-pointer transition-colors"
         >
           Add
         </button>

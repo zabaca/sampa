@@ -89,14 +89,14 @@ export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete 
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="text-center text-zinc-500 py-12">
+        <div className="text-center text-surface-muted py-12">
           No classes match the selected filters.
         </div>
       ) : (
         <div className="space-y-4">
           {Array.from(grouped.entries()).map(([day, items]) => (
             <div key={day}>
-              <h3 className="text-sm font-semibold text-zinc-400 mb-2">
+              <h3 className="text-sm font-semibold text-surface-muted mb-2">
                 {DAY_FULL[day as keyof typeof DAY_FULL] ?? day}
               </h3>
               <div className="space-y-2">
