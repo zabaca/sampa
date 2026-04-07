@@ -114,9 +114,9 @@ export function TimeInput({ value, onChange, className }: TimeInputProps) {
                 type="button"
                 className={`w-full text-left px-3 py-1.5 text-sm cursor-pointer ${
                   i === highlightIndex
-                    ? "bg-surface-border text-white"
+                    ? "bg-surface-border text-surface-text font-semibold"
                     : slot === value
-                      ? "bg-surface-border text-white"
+                      ? "bg-surface-border text-surface-text font-semibold"
                       : "text-surface-text hover:bg-surface-border"
                 }`}
                 onClick={() => handleSelect(slot)}

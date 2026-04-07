@@ -119,7 +119,7 @@ export function LocationManager({ locations, onAdd, onUpdate, onDelete }: Locati
           type="button"
           onClick={handleAdd}
           disabled={!newName.trim()}
-          className="px-3 py-1 text-xs rounded bg-surface-border hover:bg-surface-border text-surface-text disabled:opacity-50 cursor-pointer transition-colors"
+          className="px-3 py-1 text-xs rounded bg-surface-border hover:opacity-80 text-surface-text disabled:opacity-50 cursor-pointer transition-colors"
         >
           Add
         </button>

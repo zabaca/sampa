@@ -44,3 +44,9 @@ body {
 [data-theme="light"] .badge-invite { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
 [data-theme="light"] .badge-age { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
 [data-theme="light"] .badge-location { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+/* Delete button — theme-aware */
+[data-theme="dark"] .btn-delete { background: rgb(127 29 29 / 0.5); color: #f87171; }
+[data-theme="dark"] .btn-delete:hover { background: rgb(153 27 27 / 0.7); }
+[data-theme="light"] .btn-delete { background: #fee2e2; color: #dc2626; }
+[data-theme="light"] .btn-delete:hover { background: #fecaca; }

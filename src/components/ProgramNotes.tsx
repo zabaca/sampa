@@ -116,7 +116,7 @@ export function ProgramNotes({ notes, editMode, onAdd, onUpdate, onDelete }: Pro
             type="button"
             onClick={handleAdd}
             disabled={!newNote.trim()}
-            className="px-3 py-1 text-xs rounded bg-surface-border hover:bg-surface-border text-surface-text disabled:opacity-50 cursor-pointer transition-colors"
+            className="px-3 py-1 text-xs rounded bg-surface-border hover:opacity-80 text-surface-text disabled:opacity-50 cursor-pointer transition-colors"
           >
             Add
           </button>

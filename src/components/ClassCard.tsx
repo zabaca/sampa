@@ -42,7 +42,7 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
             </button>
             <button
               onClick={() => onDelete(item.id)}
-              className="w-5 h-5 rounded bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center text-[10px] cursor-pointer"
+              className="w-5 h-5 rounded btn-delete flex items-center justify-center text-[10px] cursor-pointer"
             >
               ✕
             </button>
@@ -77,7 +77,7 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className="px-2 py-1 rounded bg-red-100 hover:bg-red-200 text-red-600 text-xs cursor-pointer"
+            className="px-2 py-1 rounded btn-delete text-xs cursor-pointer"
           >
             Delete
           </button>
