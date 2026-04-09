@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { api } from "@/lib/api-client";
 
 type ClassColorRow = {
   id: number;
@@ -12,9 +13,8 @@ export function useClassColors() {
   const [rows, setRows] = useState<ClassColorRow[]>([]);
 
   const fetchColors = useCallback(async () => {
-    const res = await fetch("/api/class-colors");
-    const data = await res.json();
-    setRows(data);
+    const res = await api.classColors.list();
+    if (res.status === 200) setRows(res.body);
   }, []);
 
   useEffect(() => {
@@ -27,28 +27,23 @@ export function useClassColors() {
   );
 
   const setColor = async (className: string, colorKey: string) => {
-    // Optimistic
     const existing = rows.find((r) => r.class_name === className);
     if (existing) {
       setRows((prev) =>
         prev.map((r) => (r.class_name === className ? { ...r, color_key: colorKey } : r))
       );
-      await fetch(`/api/class-colors/${existing.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ color_key: colorKey }),
+      await api.classColors.update({
+        params: { id: String(existing.id) },
+        body: { color_key: colorKey },
       });
     } else {
       const optimisticId = Date.now();
       setRows((prev) => [...prev, { id: optimisticId, class_name: className, color_key: colorKey }]);
-      const res = await fetch("/api/class-colors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ class_name: className, color_key: colorKey }),
+      const res = await api.classColors.upsert({
+        body: { class_name: className, color_key: colorKey },
       });
-      if (res.ok) {
-        const created = await res.json();
-        setRows((prev) => prev.map((r) => (r.id === optimisticId ? created : r)));
+      if (res.status === 201) {
+        setRows((prev) => prev.map((r) => (r.id === optimisticId ? res.body : r)));
       }
     }
   };

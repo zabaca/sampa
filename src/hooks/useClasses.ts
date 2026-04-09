@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { ClassItem } from "@/lib/constants";
+import { api } from "@/lib/api-client";
 
 export type NoteItem = {
   id: number;
@@ -21,16 +22,14 @@ export function useClasses() {
 
   const fetchClasses = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/classes");
-    const data = await res.json();
-    setAllClasses(data);
+    const res = await api.classes.list({ query: {} });
+    if (res.status === 200) setAllClasses(res.body);
     setLoading(false);
   }, []);
 
   const fetchNotes = useCallback(async () => {
-    const res = await fetch("/api/notes");
-    const data = await res.json();
-    setAllNotes(data);
+    const res = await api.notes.list({ query: {} });
+    if (res.status === 200) setAllNotes(res.body);
   }, []);
 
   useEffect(() => {
@@ -42,16 +41,11 @@ export function useClasses() {
     const optimisticId = tempId();
     setAllClasses((prev) => [...prev, { ...cls, id: optimisticId } as ClassItem]);
 
-    const res = await fetch("/api/classes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cls),
-    });
+    const res = await api.classes.create({ body: cls });
 
-    if (res.ok) {
-      const created = await res.json();
-      setAllClasses((prev) => prev.map((c) => (c.id === optimisticId ? created : c)));
-      return created.id;
+    if (res.status === 201) {
+      setAllClasses((prev) => prev.map((c) => (c.id === optimisticId ? res.body : c)));
+      return res.body.id;
     }
     setAllClasses((prev) => prev.filter((c) => c.id !== optimisticId));
     return optimisticId;
@@ -62,26 +56,21 @@ export function useClasses() {
       prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
     );
 
-    const res = await fetch(`/api/classes/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updates),
-    });
-
-    if (!res.ok) await fetchClasses();
+    const res = await api.classes.update({ params: { id }, body: updates });
+    if (res.status !== 200) await fetchClasses();
   };
 
   const deleteClass = async (id: string) => {
     const prev = allClasses;
     setAllClasses((curr) => curr.filter((c) => c.id !== id));
 
-    const res = await fetch(`/api/classes/${id}`, { method: "DELETE" });
-    if (!res.ok) setAllClasses(prev);
+    const res = await api.classes.delete({ params: { id }, body: undefined });
+    if (res.status !== 200) setAllClasses(prev);
   };
 
   const resetClasses = async () => {
-    const res = await fetch("/api/classes/reset", { method: "POST" });
-    if (res.ok) {
+    const res = await api.classes.reset({ body: {} });
+    if (res.status === 200) {
       await fetchClasses();
       await fetchNotes();
     }
@@ -91,15 +80,10 @@ export function useClasses() {
     const optimisticId = Date.now();
     setAllNotes((prev) => [...prev, { id: optimisticId, program, note, sort_order: prev.length + 1 }]);
 
-    const res = await fetch("/api/notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ program, note }),
-    });
+    const res = await api.notes.create({ body: { program, note } });
 
-    if (res.ok) {
-      const created = await res.json();
-      setAllNotes((prev) => prev.map((n) => (n.id === optimisticId ? created : n)));
+    if (res.status === 201) {
+      setAllNotes((prev) => prev.map((n) => (n.id === optimisticId ? res.body : n)));
     } else {
       setAllNotes((prev) => prev.filter((n) => n.id !== optimisticId));
     }
@@ -108,20 +92,15 @@ export function useClasses() {
   const updateNote = async (id: number, note: string) => {
     setAllNotes((prev) => prev.map((n) => (n.id === id ? { ...n, note } : n)));
 
-    const res = await fetch(`/api/notes/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ note }),
-    });
-
-    if (!res.ok) await fetchNotes();
+    const res = await api.notes.update({ params: { id: String(id) }, body: { note } });
+    if (res.status !== 200) await fetchNotes();
   };
 
   const deleteNote = async (id: number) => {
     setAllNotes((prev) => prev.filter((n) => n.id !== id));
 
-    const res = await fetch(`/api/notes/${id}`, { method: "DELETE" });
-    if (!res.ok) await fetchNotes();
+    const res = await api.notes.delete({ params: { id: String(id) }, body: undefined });
+    if (res.status !== 200) await fetchNotes();
   };
 
   return {
