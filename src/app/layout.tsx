@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, DM_Sans } from "next/font/google";
+import { PHProvider } from "@/components/PostHogProvider";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -28,7 +29,9 @@ export default function RootLayout({
       lang="en"
       className={`${barlowCondensed.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-zinc-950 text-zinc-100 font-sans">{children}</body>
+      <body className="min-h-full bg-zinc-950 text-zinc-100 font-sans">
+        <PHProvider>{children}</PHProvider>
+      </body>
     </html>
   );
 }
