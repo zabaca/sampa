@@ -50,7 +50,7 @@ export function useLocations() {
   const deleteLocation = async (id: number) => {
     setLocations((prev) => prev.filter((l) => l.id !== id));
 
-    const res = await api.locations.delete({ params: { id: String(id) }, body: undefined });
+    const res = await api.locations.delete({ params: { id: String(id) } });
     if (res.status !== 200) await fetchLocations();
   };
 

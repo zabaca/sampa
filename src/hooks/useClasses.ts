@@ -64,12 +64,12 @@ export function useClasses() {
     const prev = allClasses;
     setAllClasses((curr) => curr.filter((c) => c.id !== id));
 
-    const res = await api.classes.delete({ params: { id }, body: undefined });
+    const res = await api.classes.delete({ params: { id } });
     if (res.status !== 200) setAllClasses(prev);
   };
 
   const resetClasses = async () => {
-    const res = await api.classes.reset({ body: {} });
+    const res = await api.classes.reset({});
     if (res.status === 200) {
       await fetchClasses();
       await fetchNotes();
@@ -99,7 +99,7 @@ export function useClasses() {
   const deleteNote = async (id: number) => {
     setAllNotes((prev) => prev.filter((n) => n.id !== id));
 
-    const res = await api.notes.delete({ params: { id: String(id) }, body: undefined });
+    const res = await api.notes.delete({ params: { id: String(id) } });
     if (res.status !== 200) await fetchNotes();
   };
 
