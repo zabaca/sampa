@@ -41,8 +41,8 @@ export function generateTimeSlots(
   return slots;
 }
 
-export const MORNING_SLOTS = generateTimeSlots(5, 12, 30);
-export const EVENING_SLOTS = generateTimeSlots(12, 21, 30);
+export const MORNING_SLOTS = generateTimeSlots(5, 12, 5);
+export const EVENING_SLOTS = generateTimeSlots(12, 21, 5);
 
 export function todayShort(): string {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
