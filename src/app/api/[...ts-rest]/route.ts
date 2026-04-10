@@ -204,6 +204,15 @@ const handler = createNextHandler(
         return { status: 200, body: updated };
       },
     },
+    auth: {
+      verifyEdit: async ({ body }) => {
+        const correct = process.env.EDIT_PASSWORD;
+        if (!correct || body.password === correct) {
+          return { status: 200 as const, body: { ok: true as const } };
+        }
+        return { status: 401 as const, body: { ok: false as const, error: "Wrong password" } };
+      },
+    },
   },
   {
     handlerType: "app-router",

@@ -7,6 +7,7 @@ import { PROGRAMS } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
 import { useLocations } from "@/hooks/useLocations";
 import { useClassColors } from "@/hooks/useClassColors";
+import { api } from "@/lib/api-client";
 import { COLOR_PALETTE } from "@/lib/colors";
 import { ProgramTabs } from "./ProgramTabs";
 import { ViewToggle } from "./ViewToggle";
@@ -31,6 +32,8 @@ export function SampaSchedule() {
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
   const [formDefaults, setFormDefaults] = useState<{ day?: Day; time?: string }>({});
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
   const [classFilters, setClassFilters] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [locationInitialized, setLocationInitialized] = useState(false);
@@ -232,7 +235,16 @@ export function SampaSchedule() {
         <div className="flex-1" />
         <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
         <button
-          onClick={() => setEditMode(!editMode)}
+          onClick={() => {
+            if (editMode) {
+              setEditMode(false);
+            } else if (sessionStorage.getItem("sampa-edit-auth")) {
+              setEditMode(true);
+            } else {
+              setShowPasswordPrompt(true);
+              setPasswordError(false);
+            }
+          }}
           className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors cursor-pointer ${
             editMode
               ? "bg-amber-600 text-white"
@@ -341,6 +353,55 @@ export function SampaSchedule() {
         onUpdate={updateNote}
         onDelete={deleteNote}
       />
+
+      {/* Password Modal */}
+      {showPasswordPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <form
+            className="bg-surface-card border border-surface-border rounded-lg p-6 w-80 space-y-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const input = (e.currentTarget.elements.namedItem("password") as HTMLInputElement).value;
+              const res = await api.auth.verifyEdit({ body: { password: input } });
+              if (res.status === 200) {
+                sessionStorage.setItem("sampa-edit-auth", "1");
+                setShowPasswordPrompt(false);
+                setPasswordError(false);
+                setEditMode(true);
+              } else {
+                setPasswordError(true);
+              }
+            }}
+          >
+            <h3 className="text-lg font-semibold text-surface-text">Enter Edit Password</h3>
+            <input
+              name="password"
+              type="password"
+              autoFocus
+              className="w-full px-3 py-2 rounded-md bg-surface-input border border-surface-border text-surface-text text-sm"
+              placeholder="Password"
+            />
+            {passwordError && (
+              <p className="text-sm text-red-500">Wrong password</p>
+            )}
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => { setShowPasswordPrompt(false); setPasswordError(false); }}
+                className="px-3 py-1.5 text-sm rounded-md bg-surface-card text-surface-muted hover:text-surface-text cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-3 py-1.5 text-sm rounded-md bg-[#C22027] hover:bg-[#a81b22] text-white font-medium cursor-pointer"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Form Modal */}
       {showForm && (

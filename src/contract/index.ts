@@ -185,6 +185,17 @@ export const contract = c.router(
         },
       },
     },
+    auth: {
+      verifyEdit: {
+        method: "POST",
+        path: "/auth/edit",
+        body: z.object({ password: z.string() }),
+        responses: {
+          200: z.object({ ok: z.literal(true) }),
+          401: z.object({ ok: z.literal(false), error: z.string() }),
+        },
+      },
+    },
   },
   { pathPrefix: "/api" }
 );
