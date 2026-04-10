@@ -30,6 +30,7 @@ export function SampaSchedule() {
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [editingSiblings, setEditingSiblings] = useState<ClassItem[]>([]);
+  const [formDefaults, setFormDefaults] = useState<{ day?: Day; time?: string }>({});
   const [classFilters, setClassFilters] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
   const [locationInitialized, setLocationInitialized] = useState(false);
@@ -249,6 +250,7 @@ export function SampaSchedule() {
             onClick={() => {
               setEditingClass(null);
               setEditingSiblings([]);
+              setFormDefaults({});
               setShowForm(true);
             }}
             className="px-3 py-1.5 text-sm rounded-md bg-[#C22027] hover:bg-[#a81b22] text-white font-medium cursor-pointer transition-colors"
@@ -301,6 +303,12 @@ export function SampaSchedule() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onDrop={handleDrop}
+          onCellClick={(day, time) => {
+            setEditingClass(null);
+            setEditingSiblings([]);
+            setFormDefaults({ day, time });
+            setShowForm(true);
+          }}
         />
       ) : (
         <ListView
@@ -340,12 +348,17 @@ export function SampaSchedule() {
           initial={editingClass}
           siblingDays={editingSiblings.map((s) => s.day as Day)}
           locations={locations}
-          defaultLocation={defaultLocation?.name}
+          defaultLocation={locationFilter ?? defaultLocation?.name}
+          defaultDay={formDefaults.day}
+          defaultTime={formDefaults.time}
+          defaultProgram={activeProgram}
+          defaultClassName={classFilters.size === 1 ? [...classFilters][0] : undefined}
           onSubmit={handleFormSubmit}
           onCancel={() => {
             setShowForm(false);
             setEditingClass(null);
             setEditingSiblings([]);
+            setFormDefaults({});
           }}
         />
       )}

@@ -13,9 +13,10 @@ type CalendarViewProps = {
   onEdit: (item: ClassItem) => void;
   onDelete: (id: string) => void;
   onDrop: (classId: string, day: Day, time: string) => void;
+  onCellClick?: (day: Day, time: string) => void;
 };
 
-export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDelete, onDrop }: CalendarViewProps) {
+export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDelete, onDrop, onCellClick }: CalendarViewProps) {
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
 
   // In edit mode show all 7 days; otherwise only days with classes
@@ -103,16 +104,24 @@ export function CalendarView({ classes, editMode, colorMap, theme, onEdit, onDel
                   );
                   const isDragOver = dragOverCell === cellKey;
 
+                  const isEmpty = cellClasses.length === 0;
+
                   return (
                     <div
                       key={cellKey}
                       className={`p-1 min-h-[60px] space-y-1 transition-colors rounded border-b border-surface-border/50 ${
-                        editMode ? "cursor-default" : ""
+                        editMode && isEmpty ? "cursor-pointer group hover:bg-surface-border/30" : ""
                       } ${isDragOver ? "bg-surface-border/50 ring-1 ring-surface-muted" : ""}`}
                       onDragOver={editMode ? (e) => handleDragOver(e, cellKey) : undefined}
                       onDragLeave={editMode ? handleDragLeave : undefined}
                       onDrop={editMode ? (e) => handleDrop(e, day, time) : undefined}
+                      onClick={editMode && isEmpty && onCellClick ? () => onCellClick(day, time) : undefined}
                     >
+                      {editMode && isEmpty && (
+                        <div className="hidden group-hover:flex items-center justify-center h-full text-surface-muted/50 text-lg font-light select-none">
+                          +
+                        </div>
+                      )}
                       {cellClasses.map((cls) => (
                         <ClassCard
                           key={cls.id}

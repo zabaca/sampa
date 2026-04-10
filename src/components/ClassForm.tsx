@@ -13,17 +13,21 @@ type ClassFormProps = {
   siblingDays?: Day[];
   locations: LocationItem[];
   defaultLocation?: string;
+  defaultDay?: Day;
+  defaultTime?: string;
+  defaultProgram?: string;
+  defaultClassName?: string;
   onSubmit: (data: ClassFormData) => void | Promise<void>;
   onCancel: () => void;
 };
 
-export function ClassForm({ initial, siblingDays, locations, defaultLocation, onSubmit, onCancel }: ClassFormProps) {
-  const [program, setProgram] = useState(initial?.program ?? PROGRAMS[0]);
+export function ClassForm({ initial, siblingDays, locations, defaultLocation, defaultDay, defaultTime, defaultProgram, defaultClassName, onSubmit, onCancel }: ClassFormProps) {
+  const [program, setProgram] = useState(initial?.program ?? defaultProgram ?? PROGRAMS[0]);
   const [selectedDays, setSelectedDays] = useState<Day[]>(
-    siblingDays && siblingDays.length > 0 ? siblingDays : initial ? [initial.day as Day] : []
+    siblingDays && siblingDays.length > 0 ? siblingDays : initial ? [initial.day as Day] : defaultDay ? [defaultDay] : []
   );
-  const [time, setTime] = useState(initial?.time ?? "");
-  const [name, setName] = useState(initial?.name ?? "");
+  const [time, setTime] = useState(initial?.time ?? defaultTime ?? "");
+  const [name, setName] = useState(initial?.name ?? defaultClassName ?? "");
   const [inviteOnly, setInviteOnly] = useState(initial?.invite_only === 1);
   const [ageGroup, setAgeGroup] = useState(initial?.age_group ?? "");
   const [location, setLocation] = useState(initial?.location ?? defaultLocation ?? "");
