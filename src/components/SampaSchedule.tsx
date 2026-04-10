@@ -47,7 +47,7 @@ export function SampaSchedule() {
 
   const {
     allClasses, allNotes, loading,
-    createClass, updateClass, deleteClass, resetClasses,
+    createClass, updateClass, deleteClass,
     createNote, updateNote, deleteNote,
   } = useClasses();
 
@@ -192,9 +192,6 @@ export function SampaSchedule() {
     await updateClass(classId, { day, time });
   };
 
-  const handleReset = async () => {
-    await resetClasses();
-  };
 
   return (
     <div data-theme={theme} className="min-h-screen bg-surface-bg text-surface-text transition-colors">
@@ -257,12 +254,6 @@ export function SampaSchedule() {
             className="px-3 py-1.5 text-sm rounded-md bg-[#C22027] hover:bg-[#a81b22] text-white font-medium cursor-pointer transition-colors"
           >
             + Add Class
-          </button>
-          <button
-            onClick={handleReset}
-            className="px-3 py-1.5 text-sm rounded-md bg-surface-card hover:opacity-80 text-surface-muted font-medium cursor-pointer transition-colors"
-          >
-            Reset to Default
           </button>
         </div>
       )}
