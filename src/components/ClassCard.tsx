@@ -1,6 +1,7 @@
 import type { ClassItem } from "@/lib/constants";
 import { classColor } from "@/lib/colors";
 import { Badge } from "./Badge";
+import { usePostHog } from "posthog-js/react";
 import type { Theme } from "@/lib/themes";
 
 type ClassCardProps = {
@@ -17,6 +18,21 @@ type ClassCardProps = {
 
 export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", onEdit, onDelete, draggable, onDragStart }: ClassCardProps) {
   const colors = classColor(item.name, colorMap, theme);
+  const posthog = usePostHog();
+
+  const trackClick = () => {
+    if (editMode) return;
+    posthog?.capture("class_clicked", {
+      class_name: item.name,
+      program: item.program,
+      day: item.day,
+      time: item.time,
+      location: item.location,
+      invite_only: item.invite_only === 1,
+      age_group: item.age_group,
+      variant,
+    });
+  };
 
   if (variant === "calendar") {
     return (
@@ -24,6 +40,7 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
         className={`group relative rounded-md border-l-2 ${colors.border} ${colors.bg} px-2 py-1.5 text-xs ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
         draggable={draggable}
         onDragStart={onDragStart}
+        onClick={trackClick}
       >
         <div className={`font-semibold ${colors.text} leading-tight`}>{item.name}</div>
         <div className="text-surface-muted mt-0.5">{item.time}</div>
@@ -56,6 +73,7 @@ export function ClassCard({ item, variant, editMode, colorMap, theme = "dark", o
   return (
     <div
       className={`flex items-center gap-3 rounded-lg border ${colors.border} ${colors.bg} px-4 py-3`}
+      onClick={trackClick}
     >
       <div className="min-w-[70px] text-sm text-surface-muted font-medium">{item.time}</div>
       <div className="flex-1">

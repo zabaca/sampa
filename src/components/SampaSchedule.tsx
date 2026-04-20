@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import type { ClassItem, Program, Day } from "@/lib/constants";
 import { PROGRAMS } from "@/lib/constants";
 import { useClasses } from "@/hooks/useClasses";
@@ -24,6 +25,7 @@ import type { Theme } from "@/lib/themes";
 export function SampaSchedule() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const posthog = usePostHog();
 
   const [activeProgram, setActiveProgram] = useState<Program>("Adult BJJ");
   const [viewMode, setViewMode] = useState<"calendar" | "list">(() => {
@@ -50,6 +52,7 @@ export function SampaSchedule() {
   const handleThemeChange = (t: Theme) => {
     setTheme(t);
     localStorage.setItem("sampa-theme", t);
+    posthog?.capture("theme_changed", { theme: t });
   };
 
   const {
@@ -127,6 +130,7 @@ export function SampaSchedule() {
   const setLocationAndParam = (loc: string | null) => {
     setLocationFilter(loc);
     setClassFilters(new Set());
+    posthog?.capture("location_selected", { location: loc ?? "all" });
     const params = new URLSearchParams(searchParams.toString());
     if (loc) {
       params.set("location", loc);
@@ -233,10 +237,21 @@ export function SampaSchedule() {
         <ProgramTabs
           programs={availablePrograms}
           active={activeProgram}
-          onSelect={(p) => { setActiveProgram(p); setClassFilters(new Set()); }}
+          onSelect={(p) => {
+            setActiveProgram(p);
+            setClassFilters(new Set());
+            posthog?.capture("program_viewed", { program: p, location: locationFilter ?? "all" });
+          }}
         />
         <div className="flex-1" />
-        <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
+        <ViewToggle
+          viewMode={viewMode}
+          onToggle={(m) => {
+            setViewMode(m);
+            const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
+            posthog?.capture("view_mode_changed", { mode: m, viewport: isMobile ? "mobile" : "desktop" });
+          }}
+        />
         <button
           onClick={() => {
             if (editMode) {
@@ -295,8 +310,15 @@ export function SampaSchedule() {
               onToggle={() => {
                 setClassFilters((prev) => {
                   const next = new Set(prev);
-                  if (next.has(name)) next.delete(name);
+                  const wasActive = next.has(name);
+                  if (wasActive) next.delete(name);
                   else next.add(name);
+                  posthog?.capture("class_filter_applied", {
+                    class_name: name,
+                    program: activeProgram,
+                    action: wasActive ? "removed" : "added",
+                    active_filters: [...next],
+                  });
                   return next;
                 });
               }}
