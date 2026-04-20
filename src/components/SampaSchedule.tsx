@@ -26,7 +26,10 @@ export function SampaSchedule() {
   const searchParams = useSearchParams();
 
   const [activeProgram, setActiveProgram] = useState<Program>("Adult BJJ");
-  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  const [viewMode, setViewMode] = useState<"calendar" | "list">(() => {
+    if (typeof window === "undefined") return "calendar";
+    return window.matchMedia("(max-width: 768px)").matches ? "list" : "calendar";
+  });
   const [editMode, setEditMode] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
