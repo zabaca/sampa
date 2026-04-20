@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePostHog } from "posthog-js/react";
 import type { ClassItem } from "@/lib/constants";
 import { DAYS, DAY_FULL } from "@/lib/constants";
 import { getTimePeriod, sortByTime } from "@/lib/time";
@@ -18,6 +19,7 @@ type ListViewProps = {
 export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete }: ListViewProps) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<"Morning" | "Evening" | null>(null);
+  const posthog = usePostHog();
 
   // Filter
   let filtered = classes;
@@ -53,7 +55,10 @@ export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete 
         <Pill
           label="All Days"
           active={selectedDay === null}
-          onClick={() => setSelectedDay(null)}
+          onClick={() => {
+            setSelectedDay(null);
+            posthog?.capture("day_filter_applied", { day: "all" });
+          }}
           size="sm"
         />
         {activeDays.map((d) => (
@@ -61,7 +66,11 @@ export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete 
             key={d}
             label={d}
             active={selectedDay === d}
-            onClick={() => setSelectedDay(selectedDay === d ? null : d)}
+            onClick={() => {
+              const next = selectedDay === d ? null : d;
+              setSelectedDay(next);
+              posthog?.capture("day_filter_applied", { day: next ?? "all" });
+            }}
             size="sm"
           />
         ))}
@@ -70,19 +79,30 @@ export function ListView({ classes, editMode, colorMap, theme, onEdit, onDelete 
         <Pill
           label="All Times"
           active={selectedPeriod === null}
-          onClick={() => setSelectedPeriod(null)}
+          onClick={() => {
+            setSelectedPeriod(null);
+            posthog?.capture("time_period_filter_applied", { period: "all" });
+          }}
           size="sm"
         />
         <Pill
           label="Morning"
           active={selectedPeriod === "Morning"}
-          onClick={() => setSelectedPeriod(selectedPeriod === "Morning" ? null : "Morning")}
+          onClick={() => {
+            const next = selectedPeriod === "Morning" ? null : "Morning";
+            setSelectedPeriod(next);
+            posthog?.capture("time_period_filter_applied", { period: next ?? "all" });
+          }}
           size="sm"
         />
         <Pill
           label="Evening"
           active={selectedPeriod === "Evening"}
-          onClick={() => setSelectedPeriod(selectedPeriod === "Evening" ? null : "Evening")}
+          onClick={() => {
+            const next = selectedPeriod === "Evening" ? null : "Evening";
+            setSelectedPeriod(next);
+            posthog?.capture("time_period_filter_applied", { period: next ?? "all" });
+          }}
           size="sm"
         />
       </div>
