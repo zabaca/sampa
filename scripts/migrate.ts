@@ -3,7 +3,7 @@ import { db } from "../src/lib/db";
 import { seed } from "../src/lib/seed";
 
 async function main() {
-  console.log("Running migrations...");
+  console.log(`Running migrations... (env: ${process.env.VERCEL_ENV ?? "local"}, db: ${process.env.TURSO_DATABASE_URL ? "turso" : "local.db"})`);
   await migrate(db, { migrationsFolder: "./drizzle" });
   console.log("Migrations complete.");
 
